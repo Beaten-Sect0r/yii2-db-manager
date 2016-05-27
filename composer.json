@@ -1,0 +1,25 @@
+{
+    "name": "beaten-sect0r/yii2-db-manager",
+    "description": "The db manager module for Yii2.",
+    "keywords": ["yii2", "backup", "db manager", "dump"],
+    "authors": [
+        {
+            "name": "Alexander Volkov",
+            "email": "beatensect0r@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "require": {
+        "yiisoft/yii2": ">=2.0.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "bs\\dbManager\\": ""
+        }
+    },
+    "extra": {
+        "bootstrap": "bs\\dbManager\\Bootstrap"
+    }
+}

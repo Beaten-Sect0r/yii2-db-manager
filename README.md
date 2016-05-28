@@ -17,7 +17,7 @@ composer require beaten-sect0r/yii2-db-manager "*"
 or add
 
 ```
-"composer require beaten-sect0r/yii2-db-manager": "*"
+"beaten-sect0r/yii2-db-manager": "*"
 ```
 
 to the require section of your `composer.json` file.

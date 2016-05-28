@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
+/* @var $dataProvider yii\data\ArrayDataProvider */
 
 $this->title = Yii::t('dbManager', 'DB manager');
 $this->params['breadcrumbs'][] = $this->title;

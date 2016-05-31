@@ -23,16 +23,16 @@ class Module extends BaseModule
 
         $this->dsn = Yii::$app->getDb()->dsn;
         $this->host = $this->getDsnAttribute('host', $this->dsn);
-        $this->dbName = $this->getDsnAttribute('name', $this->dsn);
+        $this->dbName = $this->getDsnAttribute('dbname', $this->dsn);
         $this->username = Yii::$app->getDb()->username;
         $this->password = Yii::$app->getDb()->password;
         $this->tablePrefix = Yii::$app->getDb()->tablePrefix;
         $this->files = FileHelper::findFiles($this->path, ['only' => ['*.sql']]);
     }
 
-    public function getDsnAttribute($str, $dsn)
+    public function getDsnAttribute($name, $dsn)
     {
-        if (preg_match('/' . $str . '=([^;]*)/', $dsn, $match)) {
+        if (preg_match('/' . $name . '=([^;]*)/', $dsn, $match)) {
             return $match[1];
         } else {
             return null;

@@ -9,47 +9,33 @@ use yii\helpers\FileHelper;
 class Module extends BaseModule
 {
     public $dsn;
+    public $host;
+    public $dbName;
     public $username;
     public $password;
     public $tablePrefix;
     public $path;
-
-    public $host;
-    public $dbName;
     public $files;
 
     public function init()
     {
         parent::init();
 
-        $dsn = $this->parseDSN($this->dsn);
-        $this->host = $dsn['host'];
-        $this->dbName = $this->tablePrefix . $dsn['dbname'];
+        $this->dsn = Yii::$app->getDb()->dsn;
+        $this->host = $this->getDsnAttribute('host', $this->dsn);
+        $this->dbName = $this->getDsnAttribute('name', $this->dsn);
+        $this->username = Yii::$app->getDb()->username;
+        $this->password = Yii::$app->getDb()->password;
+        $this->tablePrefix = Yii::$app->getDb()->tablePrefix;
         $this->files = FileHelper::findFiles($this->path, ['only' => ['*.sql']]);
     }
 
-    public function parseDSN($dsn)
+    public function getDsnAttribute($str, $dsn)
     {
-        if (is_array($dsn)) {
-            return $dsn;
+        if (preg_match('/' . $str . '=([^;]*)/', $dsn, $match)) {
+            return $match[1];
+        } else {
+            return null;
         }
-        $parsed = @parse_url($dsn);
-        if (!$parsed) {
-            return;
-        }
-        $params = null;
-        if (!empty($parsed['query'])) {
-            parse_str($parsed['query'], $params);
-            $parsed += $params;
-        }
-        $parsed['dsn'] = $dsn;
-
-        $path = explode(';', $parsed['path']);
-        foreach ($path as $p) {
-            $x = explode('=', $p);
-            $parsed[$x[0]] = $x[1];
-        }
-
-        return $parsed;
     }
 }

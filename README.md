@@ -35,13 +35,9 @@ Advanced ```backend/config/main.php```
     'modules' => [
         'db-manager' => [
             'class' => 'bs\dbManager\Module',
-            'dsn' => $config['components']['db']['dsn'],
-            'username' => $config['components']['db']['username'],
-            'password' => $config['components']['db']['password'],
-            'tablePrefix' => $config['components']['db']['tablePrefix'],
             // create a directory for the dumps
-            'path' => Yii::$app->basePath . '/backup/', // basic
-            //'path' => Yii::$app->basePath . '/../backup/', // advanced
+            //'path' => realpath(__DIR__ . '/../backup') . '/', // basic
+            'path' => realpath(__DIR__ . '/../../backup') . '/', // advanced
         ],
     ],
 ```

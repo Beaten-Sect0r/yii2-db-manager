@@ -8,6 +8,7 @@ use yii\helpers\FileHelper;
 
 class Module extends BaseModule
 {
+    public $driverName;
     public $dsn;
     public $host;
     public $dbName;
@@ -21,6 +22,7 @@ class Module extends BaseModule
     {
         parent::init();
 
+        $this->driverName = Yii::$app->getDb()->driverName;
         $this->dsn = Yii::$app->getDb()->dsn;
         $this->host = $this->getDsnAttribute('host', $this->dsn);
         $this->dbName = $this->getDsnAttribute('dbname', $this->dsn);
@@ -30,6 +32,9 @@ class Module extends BaseModule
         $this->files = FileHelper::findFiles($this->path, ['only' => ['*.sql']]);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getDsnAttribute($name, $dsn)
     {
         if (preg_match('/' . $name . '=([^;]*)/', $dsn, $match)) {

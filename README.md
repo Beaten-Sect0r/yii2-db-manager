@@ -1,6 +1,6 @@
 # Yii2 DB manager
 
-Database Backup and Restore functionality
+MySQL/PostgreSQL Database Backup and Restore functionality
 
 <img src="screenshot.png">
 

@@ -18,7 +18,7 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-        // MySQL connection test
+        // DB connection test
         try {
             new PDO($this->module->dsn, $this->module->username, $this->module->password);
 
@@ -43,7 +43,7 @@ class DefaultController extends Controller
 
             return $this->render('index', ['dataProvider' => $dataProvider]);
         } catch (PDOException $e) {
-            echo 'Error connect to MySQL: ' . $e->getMessage();
+            echo 'Error connecting to database: ' . $e->getMessage();
         }
     }
 
@@ -53,7 +53,14 @@ class DefaultController extends Controller
     public function actionCreate()
     {
         $dump = $this->module->path . $this->module->dbName . '_' . date('Y-m-d-H-i-s') . '.sql';
-        $command = 'mysqldump --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' > ' . $dump;
+        //MySQL
+        if ($this->module->driverName === 'mysql') {
+            $command = 'mysqldump --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' > ' . $dump;
+        }
+        //PostgreSQL
+        if ($this->module->driverName === 'pgsql') {
+            $command = 'pg_dump --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' > ' . $dump;
+        }
 
         if (!shell_exec($command)) {
             Yii::$app->session->setFlash('alert', [
@@ -86,7 +93,14 @@ class DefaultController extends Controller
     public function actionRestore($id)
     {
         $dump = $this->module->path . basename($this->module->files[$id]);
-        $command = 'mysql --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' < ' . $dump;
+        //MySQL
+        if ($this->module->driverName === 'mysql') {
+            $command = 'mysql --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' < ' . $dump;
+        }
+        //PostgreSQL
+        if ($this->module->driverName === 'pgsql') {
+            $command = 'psql --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' < ' . $dump;
+        }
 
         if (!shell_exec($command)) {
             Yii::$app->session->setFlash('alert', [

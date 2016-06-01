@@ -59,7 +59,7 @@ class DefaultController extends Controller
         }
         //PostgreSQL
         if ($this->module->driverName === 'pgsql') {
-            $command = 'pg_dump --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' > ' . $dump;
+            $command = 'PGPASSWORD=' . $this->module->password . ' pg_dump --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password ' . $this->module->dbName . ' > ' . $dump;
         }
         shell_exec($command);
         Yii::$app->session->setFlash('alert', [
@@ -92,7 +92,7 @@ class DefaultController extends Controller
         }
         //PostgreSQL
         if ($this->module->driverName === 'pgsql') {
-            $command = 'psql --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' < ' . $dump;
+            $command = 'PGPASSWORD=' . $this->module->password . ' psql --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password ' . $this->module->dbName . ' < ' . $dump;
         }
         shell_exec($command);
         Yii::$app->session->setFlash('alert', [

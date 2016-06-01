@@ -61,18 +61,11 @@ class DefaultController extends Controller
         if ($this->module->driverName === 'pgsql') {
             $command = 'pg_dump --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' > ' . $dump;
         }
-
-        if (!shell_exec($command)) {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Dump successfully created.'),
-                'options' => ['class' => 'alert-success'],
-            ]);
-        } else {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Error creating dump.'),
-                'options' => ['class' => 'alert-error'],
-            ]);
-        }
+        shell_exec($command);
+        Yii::$app->session->setFlash('alert', [
+            'body' => Yii::t('dbManager', 'Dump successfully created.'),
+            'options' => ['class' => 'alert-success'],
+        ]);
 
         return $this->redirect(['index']);
     }
@@ -101,18 +94,11 @@ class DefaultController extends Controller
         if ($this->module->driverName === 'pgsql') {
             $command = 'psql --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' < ' . $dump;
         }
-
-        if (!shell_exec($command)) {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Dump successfully restored.'),
-                'options' => ['class' => 'alert-success'],
-            ]);
-        } else {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Error restoring dump.'),
-                'options' => ['class' => 'alert-error'],
-            ]);
-        }
+        shell_exec($command);
+        Yii::$app->session->setFlash('alert', [
+            'body' => Yii::t('dbManager', 'Dump successfully restored.'),
+            'options' => ['class' => 'alert-success'],
+        ]);
 
         return $this->redirect(['index']);
     }

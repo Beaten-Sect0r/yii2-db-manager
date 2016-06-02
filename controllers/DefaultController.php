@@ -2,150 +2,328 @@
 
 namespace bs\dbManager\controllers;
 
+use bs\dbManager\models\Dump;
+use bs\dbManager\models\Restore;
+use bs\dbManager\Module;
+use PDO;
+use Symfony\Component\Process\Process;
 use Yii;
 use yii\data\ArrayDataProvider;
+use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\web\Controller;
-use PDO;
 
 /**
  * Default controller.
  */
 class DefaultController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
-    public function actionIndex()
-    {
-        // DB connection test
-        try {
-            new PDO($this->module->dsn, $this->module->username, $this->module->password);
+	/**
+	 * @return Module
+	 **/
+	public function getModule()
+	{
+		return $this->module;
+	}
 
-            $dataArray = [];
+	/**
+	 * @return array
+	 */
+	public function behaviors()
+	{
+		return [
+			'verbs' => [
+				'class'   => VerbFilter::class,
+				'actions' => [
+					'create'     => ['post'],
+					'delete'     => ['post'],
+					'delete-all' => ['post'],
+					'restore'    => ['get', 'post'],
+					'*'          => ['get'],
+				],
+			],
+		];
+	}
 
-            foreach ($this->module->files as $id => $file) {
-                $columns = [];
-                $columns['id'] = $id;
-                $columns['name'] = basename($file);
-                $columns['size'] = Yii::$app->formatter->asSize(filesize($file));
-                $columns['create_at'] = Yii::$app->formatter->asDatetime(filectime($file));
-                $dataArray[] = $columns;
-            }
+	/**
+	 * @inheritdoc
+	 */
+	public function actionIndex()
+	{
 
-            ArrayHelper::multisort($dataArray, ['create_at'], [SORT_DESC]);
-            $dataProvider = new ArrayDataProvider([
-                'allModels' => $dataArray,
-                'pagination' => [
-                    'pageSize' => 30,
-                ],
-            ]);
+		$dataArray = $this->prepareFileData();
+		$dbList = $this->getModule()->dbList;
+		$model = new Dump($dbList, $this->getModule()->customDumpOptions);
+		$dataProvider = new ArrayDataProvider([
+			'allModels'  => $dataArray,
+			'pagination' => [
+				'pageSize' => 30,
+			],
+		]);
+		$activePids = $this->checkActivePids();
+		return $this->render('index', [
+			'dataProvider' => $dataProvider,
+			'model'        => $model,
+			'dbList'       => $dbList,
+			'activePids'   => $activePids,
+		]);
 
-            return $this->render('index', ['dataProvider' => $dataProvider]);
-        } catch (PDOException $e) {
-            echo 'Error connecting to database: ' . $e->getMessage();
-        }
-    }
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function actionCreate()
-    {
-        $dump = $this->module->path . $this->module->dbName . '_' . date('Y-m-d-H-i-s') . '.sql';
-        //MySQL
-        if ($this->module->driverName === 'mysql') {
-            $command = 'mysqldump --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' > ' . $dump;
-        }
-        //PostgreSQL
-        if ($this->module->driverName === 'pgsql') {
-            $command = 'pg_dump --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' > ' . $dump;
-        }
-        shell_exec($command);
-        Yii::$app->session->setFlash('alert', [
-            'body' => Yii::t('dbManager', 'Dump successfully created.'),
-            'options' => ['class' => 'alert-success'],
-        ]);
+	/**
+	 * @param $dbname
+	 *
+	 * @return \yii\web\Response
+	 * @throws \yii\base\UserException
+	 */
+	public function actionTestConnection($dbname)
+	{
+		$info = $this->getModule()->getDbInfo($dbname);
+		try
+		{
+			new PDO($info['dsn'], $info['username'], $info['password']);
+			\Yii::$app->session->setFlash('sussess', 'Connection success:');
+		}
+		catch (\PDOException $e)
+		{
+			\Yii::$app->session->setFlash('error', 'Connection failed: ' . $e->getMessage());
+		}
+		return $this->redirect('index');
+	}
 
-        return $this->redirect(['index']);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function actionCreate()
+	{
+		$model = new Dump($this->getModule()->dbList, $this->getModule()->customDumpOptions);
+		if ($model->load(Yii::$app->request->post()) && $model->validate())
+		{
+			$dbInfo = $this->getModule()->getDbInfo($model->db);
+			$dumpOptions = $model->makeDumpOptions();
+			$manager = $this->getModule()->createManager($dbInfo);
+			$dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
+			$dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
+			if ($model->runInBackground)
+			{
+				$this->runProcessAsync($dumpCommand);
+			}
+			else
+			{
+				$this->runProcess($dumpCommand);
+			}
 
-    /**
-     * @inheritdoc
-     */
-    public function actionDownload($id)
-    {
-        $dump = $this->module->path . basename($this->module->files[$id]);
+		}
+		else
+		{
+			Yii::$app->session->setFlash('error', Yii::t('dbManager', 'Dump request invalid') . '<br/>' .
+				Html::errorSummary
+				($model));
+		}
+		return $this->redirect(['index']);
+	}
 
-        return Yii::$app->response->sendFile($dump);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function actionDownload($id)
+	{
+		$dumpPath = $this->getModule()->path . basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
+		return Yii::$app->response->sendFile($dumpPath);
+	}
 
-    /**
-     * @inheritdoc
-     */
-    public function actionRestore($id)
-    {
-        $dump = $this->module->path . basename($this->module->files[$id]);
-        //MySQL
-        if ($this->module->driverName === 'mysql') {
-            $command = 'mysql --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password=' . $this->module->password . ' --force ' . $this->module->dbName . ' < ' . $dump;
-        }
-        //PostgreSQL
-        if ($this->module->driverName === 'pgsql') {
-            $command = 'psql --host=' . $this->module->host . ' --username=' . $this->module->username . ' --no-password=' . $this->module->password . ' ' . $this->module->dbName . ' < ' . $dump;
-        }
-        shell_exec($command);
-        Yii::$app->session->setFlash('alert', [
-            'body' => Yii::t('dbManager', 'Dump successfully restored.'),
-            'options' => ['class' => 'alert-success'],
-        ]);
+	/**
+	 * @inheritdoc
+	 */
+	public function actionRestore($id)
+	{
+		$dumpFile = $this->getModule()->path . basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
+		$model = new Restore($this->getModule()->dbList, $this->getModule()->customRestoreOptions);
+		if (Yii::$app->request->isPost)
+		{
+			if ($model->load(Yii::$app->request->post()) && $model->validate())
+			{
+				$dbInfo = $this->getModule()->getDbInfo($model->db);
+				$restoreOptions = $model->makeRestoreOptions();
+				$manager = $this->getModule()->createManager($dbInfo);
+				$restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
+				if ($model->runInBackground)
+				{
+					$this->runProcessAsync($restoreCommand, true);
+				}
+				else
+				{
+					$this->runProcess($restoreCommand, true);
+				}
+				return $this->redirect(['index']);
+			}
+		}
+		return $this->render('restore', ['model' => $model, 'file' => $dumpFile, 'id' => $id]);
+	}
 
-        return $this->redirect(['index']);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function actionDelete($id)
+	{
+		$dumpFile = $this->getModule()->path . basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
 
-    /**
-     * @inheritdoc
-     */
-    public function actionDelete($id)
-    {
-        $dump = $this->module->path . basename($this->module->files[$id]);
+		if (unlink($dumpFile))
+		{
+			Yii::$app->session->setFlash('success', Yii::t('dbManager', 'Dump deleted successfully.'));
+		}
+		else
+		{
+			Yii::$app->session->setFlash('error', Yii::t('dbManager', 'Error deleting dump.'));
+		}
 
-        if (unlink($dump)) {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Dump deleted successfully.'),
-                'options' => ['class' => 'alert-success'],
-            ]);
-        } else {
-            Yii::$app->session->setFlash('alert', [
-                'body' => Yii::t('dbManager', 'Error deleting dump.'),
-                'options' => ['class' => 'alert-error'],
-            ]);
-        }
+		return $this->redirect(['index']);
+	}
 
-        return $this->redirect(['index']);
-    }
+	/**
+	 * @inheritdoc
+	 */
+	public function actionDeleteAll()
+	{
+		if (!empty($this->getModule()->getFileList()))
+		{
+			$fail = [];
+			foreach ($this->getModule()->getFileList() as $file)
+			{
+				if (!unlink($file))
+				{
+					$fail[] = $file;
+				}
+			}
+			if (empty($fail))
+			{
+				Yii::$app->session->setFlash('success', Yii::t('dbManager', 'All dumps successfully removed.'));
+			}
+			else
+			{
+				Yii::$app->session->setFlash('error', Yii::t('dbManager', 'Error deleting dumps.'));
+			}
+		}
 
-    /**
-     * @inheritdoc
-     */
-    public function actionDeleteAll()
-    {
-        if (file_exists($this->module->path)) {
-            foreach ($this->module->files as $file) {
-                if (unlink($file)) {
-                    Yii::$app->session->setFlash('alert', [
-                        'body' => Yii::t('dbManager', 'All dumps successfully removed.'),
-                        'options' => ['class' => 'alert-success'],
-                    ]);
-                } else {
-                    Yii::$app->session->setFlash('alert', [
-                        'body' => Yii::t('dbManager', 'Error deleting dumps.'),
-                        'options' => ['class' => 'alert-error'],
-                    ]);
-                }
-            }
-        }
+		return $this->redirect(['index']);
+	}
 
-        return $this->redirect(['index']);
-    }
+	/**
+	 * @param      $command
+	 * @param bool $isRestore
+	 */
+	protected function runProcess($command, $isRestore = false)
+	{
+		$process = new Process($command);
+		$process->run();
+		if ($process->isSuccessful())
+		{
+			$msg = (!$isRestore)
+				? Yii::t('dbManager', 'Dump successfully created.')
+				: Yii::t('dbManager', 'Dump successfully restored');
+			Yii::$app->session->addFlash('success',$msg);
+		}
+		else
+		{
+			$msg = (!$isRestore) ? Yii::t('dbManager', 'Dump failed') : Yii::t('dbManager', 'Restore failed');
+			Yii::$app->session->addFlash('error',$msg. '<br/>'
+				. 'Command - ' . $command
+				. $process->getOutput() . $process->getErrorOutput());
+			Yii::error($msg . PHP_EOL . 'Command - ' . $command . PHP_EOL . $process->getOutput() . PHP_EOL
+				. $process->getErrorOutput());
+		}
+	}
+
+
+	/**
+	 * @param      $command
+	 * @param bool $isRestore
+	 */
+	protected function runProcessAsync($command, $isRestore = false)
+	{
+		$process = new Process($command);
+		$process->start();
+		$pid = $process->getPid();
+		$activePids = Yii::$app->session->get('backupPids', []);
+		if (!$process->isRunning())
+		{
+			if ($process->isSuccessful())
+			{
+				$msg = (!$isRestore)
+					? Yii::t('dbManager', 'Dump successfully created.')
+					: Yii::t('dbManager', 'Dump successfully restored');
+
+				Yii::$app->session->addFlash('success', $msg);
+			}
+			else
+			{
+				$msg = (!$isRestore) ? Yii::t('dbManager', 'Dump failed') : Yii::t('dbManager', 'Restore failed');
+
+				Yii::$app->session->addFlash('error', $msg . '<br/>'
+					. 'Command - ' . $command
+					. $process->getOutput() . $process->getErrorOutput());
+				Yii::error($msg . PHP_EOL . 'Command - ' . $command . PHP_EOL . $process->getOutput() . PHP_EOL
+					. $process->getErrorOutput());
+			}
+		}
+		else
+		{
+			$activePids[$pid] = $command;
+			Yii::$app->session->set('backupPids', $activePids);
+			Yii::$app->session->addFlash('info', Yii::t('dbManager', 'Process running with pid={pid}',
+					['pid' => $pid])
+				. '<br/>' . $command);
+		}
+
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function checkActivePids()
+	{
+		$activePids = Yii::$app->session->get('backupPids', []);
+		$newActivePids = [];
+		if (!empty($activePids))
+		{
+			foreach ($activePids as $pid => $cmd)
+			{
+				$process = new Process('ps -p ' . $pid);
+				$process->run();
+				if (!$process->isSuccessful())
+				{
+					Yii::$app->session->addFlash('success',
+						Yii::t('dbManager', 'Process complete!') . '<br/> PID=' . $pid . ' ' . $cmd);
+				}
+				else
+				{
+					$newActivePids[$pid] = $cmd;
+				}
+			}
+		}
+		Yii::$app->session->set('backupPids', $newActivePids);
+		return $newActivePids;
+	}
+
+	/**
+	 * @return array
+	 **/
+	protected function prepareFileData()
+	{
+		$dataArray = [];
+
+		foreach ($this->getModule()->getFileList() as $id => $file)
+		{
+			$columns = [];
+			$columns['id'] = $id;
+			$columns['type'] = pathinfo($file, PATHINFO_EXTENSION);
+			$columns['name'] = basename($file);
+			$columns['size'] = Yii::$app->formatter->asSize(filesize($file));
+			$columns['create_at'] = Yii::$app->formatter->asDatetime(filectime($file));
+			$dataArray[] = $columns;
+		}
+		ArrayHelper::multisort($dataArray, ['create_at'], [SORT_DESC]);
+		return $dataArray;
+	}
 }

@@ -38,7 +38,13 @@ return [
 	'Database'=>'Соединение с базой',
 	'Dump only schema'=>'Дамп структуры, без данных',
 	'Custom dump preset' => 'Свой шаблон опций для дампа',
+	'Custom restore preset' => 'Свой шаблон опций для восстановлений',
 	'run in background' =>'Запустить в фоне',
-	'Dump process running with pid={pid}'=>'Процесс запущен с pid={pid}',
-	'Dump request invalid'=>'Ошибка запроса дампа'
+	'Process running with pid={pid}'=>'Процесс запущен с pid={pid}',
+	'Dump request invalid'=>'Ошибка запроса дампа',
+	'Restore request invalid'=>'Ошибка запроса восстановления',
+	'Active Processes' =>'Активные процессы',
+	'Dump failed' =>'Ошибка создания дампа',
+	'Restore failed' =>'Ошибка восстановления',
+	'Process complete!' =>'Задача выполнена!'
 ];

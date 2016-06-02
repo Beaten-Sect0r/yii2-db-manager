@@ -24,12 +24,13 @@ abstract class BaseDumpManager implements IDumpManager
 	 */
 	public function makePath($basePath, array $dbInfo, array $dumpOptions)
 	{
-		return sprintf('%s%s_%s_%s.%s',
+		return sprintf('%s%s_%s_%s_%s.%s',
 			$basePath,
 			$dbInfo['dbName'],
 			($dumpOptions['schemaOnly'] ? 'schema' : 'full'),
 			($dumpOptions['preset'] ? $dumpOptions['preset'] : 'default'),
-			($dumpOptions['isArchive'] ? 'sql.gz' : '.sql')
+		     date('Y-m-d_H:i:s'),
+			($dumpOptions['isArchive'] ? 'sql.gz' : 'sql')
 		);
 	}
 
@@ -38,7 +39,7 @@ abstract class BaseDumpManager implements IDumpManager
 	 * @param array $dbInfo
 	 * @param array $dumpOptions
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	abstract public function makeDumpCommand($path, array $dbInfo, array $dumpOptions);
 
@@ -47,7 +48,7 @@ abstract class BaseDumpManager implements IDumpManager
 	 * @param array $dbInfo
 	 * @param array $restoreOptions
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	abstract public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions);
 

@@ -3,6 +3,11 @@
 namespace bs\dbManager;
 
 use Yii;
+use yii\base\InvalidConfigException;
+use yii\base\Module as BaseModule;
+use yii\base\UserException;
+use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 /**
  * Class Module
@@ -93,7 +98,7 @@ class Module extends BaseModule
 
 	/**
 	 * @return array
-	**/
+	 **/
 	public function getFileList()
 	{
 		return $this->fileList;

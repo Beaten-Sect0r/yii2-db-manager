@@ -1,116 +1,34 @@
 <?php
 
 /* @var $this yii\web\View */
-/* @var array $dbList */
-/* @var array $activePids */
-/* @var \bs\dbManager\models\Dump $model */
-/* @var $dataProvider yii\data\ArrayDataProvider */
+/* @var \bs\dbManager\models\Restore $model */
+/* @var string $file */
+/* @var int $id */
 
 use yii\bootstrap\ActiveForm;
 use yii\bootstrap\Html;
-use yii\grid\GridView;
 
-$this->title = Yii::t('dbManager', 'DB manager');
+$this->title = Yii::t('dbManager', 'DB manager') . ' - ' . Yii::t('dbManager', 'Restore');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="dbManager-default-index">
+<div class="dbManager-default-restore">
 
 	<div class="well">
+		<h4><?=Yii::t('dbManager', 'Restore')?> <?=$file?></h4>
 		<?php $form = ActiveForm::begin([
-			'action' => ['create'],
+			'action' => ['restore','id'=>$id],
 			'method' => 'post',
 			'layout' => 'inline',
 		]) ?>
-		<?= $form->field($model, 'db')->dropDownList(array_combine($dbList, $dbList), ['prompt' => '----']) ?>
-		<?= $form->field($model, 'isArchive')->checkbox() ?>
-		<?= $form->field($model, 'schemaOnly')->checkbox() ?>
+		<?=$form->errorSummary($model);?>
+		<?= $form->field($model, 'db')->dropDownList($model->getDBList(), ['prompt' => '----']) ?>
 		<?= $form->field($model, 'runInBackground')->checkbox() ?>
 		<?php if ($model->hasPresets()): ?>
 			<?= $form->field($model, 'preset')->dropDownList($model->getCustomOptions(), ['prompt' => '----']) ?>
 		<?php endif; ?>
-		<?= Html::submitButton(Yii::t('dbManager', 'Create dump'), ['class' => 'btn btn-success']) ?>
+		<?= Html::submitButton(Yii::t('dbManager', 'Restore'), ['class' => 'btn btn-success']) ?>
 		<?php ActiveForm::end(); ?>
 	</div>
 
-	<?= Html::a(Yii::t('dbManager', 'Delete all'),
-		['delete-all'],
-		[
-			'class'        => 'btn btn-danger pull-right',
-			'data-method'  => 'post',
-			'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-		]) ?>
-	<?php if (!empty($activePids)): ?>
-		<div class="well">
-			<h4><?= Yii::t('dbManager','Active Processes') ?></h4>
-			<?php foreach ($activePids as $pid => $cmd): ?>
-				<b><?= $pid ?></b>:<?= $cmd ?>
-			<?php endforeach; ?>
-		</div>
-	<?php endif; ?>
-	<?= GridView::widget([
-		'dataProvider' => $dataProvider,
-		'columns'      => [
-			[
-				'attribute' => 'type',
-				'label'     => Yii::t('dbManager', 'Type'),
-			],
-			[
-				'attribute' => 'name',
-				'label'     => Yii::t('dbManager', 'Name'),
-			],
-			[
-				'attribute' => 'size',
-				'label'     => Yii::t('dbManager', 'Size'),
-			],
-			[
-				'attribute' => 'create_at',
-				'label'     => Yii::t('dbManager', 'Create time'),
-			],
-			[
-				'class'    => 'yii\grid\ActionColumn',
-				'template' => '{download}&nbsp;&nbsp;{restore}&nbsp;&nbsp;{delete}',
-				'buttons'  => [
-					'download' => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-download"></span>',
-							[
-								'download',
-								'id' => $model['id'],
-							],
-							[
-								'title' => Yii::t('dbManager', 'Download'),
-								'class' => 'btn btn-sm btn-default',
-							]);
-					},
-					'restore'  => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-import"></span>',
-							[
-								'restore',
-								'id' => $model['id'],
-							],
-							[
-								'title' => Yii::t('dbManager', 'Restore'),
-								'class' => 'btn btn-sm btn-default',
-							]);
-					},
-					'delete'   => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-trash"></span>',
-							[
-								'delete',
-								'id' => $model['id'],
-							],
-							[
-								'title'        => Yii::t('dbManager', 'Delete'),
-								'data-method'  => 'post',
-								'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-								'class'        => 'btn btn-sm btn-danger',
-							]);
-					},
-				],
-			],
-		],
-	]) ?>
 
 </div>

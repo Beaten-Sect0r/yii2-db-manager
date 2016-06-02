@@ -5,9 +5,7 @@
 
 namespace bs\dbManager\models;
 
-
-use bs\dbManager\service\BaseDumpManager;
-use Symfony\Component\Process\ProcessBuilder;
+use yii\helpers\StringHelper;
 
 class MysqlDumpManager extends BaseDumpManager
 {
@@ -20,27 +18,29 @@ class MysqlDumpManager extends BaseDumpManager
 	 */
 	public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
 	{
-		$builder = new ProcessBuilder();
-		$builder->setPrefix('mysqldump');
 		$arguments = [
-			'--host='.$dbInfo['host'],
-			'--user='.$dbInfo['username'],
-			'--password='.$dbInfo['password']
+			'mysqldump',
+			'--host=' . $dbInfo['host'],
+			'--user=' . $dbInfo['username'],
+			'--password=' . $dbInfo['password'],
 		];
-		$builder->setArguments($arguments);
-		if($dumpOptions['schemaOnly']){
-			$builder->add('--no-data');
+		if ($dumpOptions['schemaOnly'])
+		{
+			$arguments[] = '--no-data';
 		}
-		if($dumpOptions['preset']){
-			$builder->add($dumpOptions['presetData']);
+		if ($dumpOptions['preset'])
+		{
+			$arguments[] = trim($dumpOptions['presetData']);
 		}
-		$builder->add($dbInfo['dbName']);
+		$arguments[] = $dbInfo['dbName'];
 
-		if($dumpOptions['isArchive']){
-			$builder->add('|gzip');
+		if ($dumpOptions['isArchive'])
+		{
+			$arguments[] = '|gzip';
 		}
-		$builder->add('>'.$path);
-		return $builder->getProcess()->getCommandLine();
+		$arguments[] = '>' . $path;
+
+		return implode(' ', $arguments);
 	}
 
 	/**
@@ -52,7 +52,27 @@ class MysqlDumpManager extends BaseDumpManager
 	 */
 	public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions)
 	{
-		// TODO: Implement makeRestoreCommand() method.
+		$arguments = [];
+		if (StringHelper::endsWith($path, '.gz', false))
+		{
+			$arguments[] = 'gunzip -c ' . $path . ' |';
+		}
+		$arguments = array_merge($arguments, [
+			'mysql',
+			'--host=' . $dbInfo['host'],
+			'--user=' . $dbInfo['username'],
+			'--password=' . $dbInfo['password'],
+		]);
+		if ($restoreOptions['preset'])
+		{
+			$arguments[] = trim($restoreOptions['presetData']);
+		}
+		$arguments[] = $dbInfo['dbName'];
+		if (!StringHelper::endsWith($path, '.gz', false)){
+			$arguments[] = ' < ' .$path;
+		}
+
+		return implode(' ', $arguments);
 	}
 
 }

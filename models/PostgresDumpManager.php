@@ -6,7 +6,7 @@
 namespace bs\dbManager\models;
 
 
-use bs\dbManager\service\BaseDumpManager;
+use yii\helpers\StringHelper;
 
 class PostgresDumpManager extends BaseDumpManager
 {
@@ -19,27 +19,29 @@ class PostgresDumpManager extends BaseDumpManager
 	 */
 	public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
 	{
-		$builder = new ProcessBuilder();
-		$builder->setPrefix('PGPASSWORD='.$dbInfo['password'].' pg_dump');
 		$arguments = [
-			'--host='.$dbInfo['host'],
-			'--user='.$dbInfo['username'],
-			'--no-password'
+			'PGPASSWORD=' . $dbInfo['password'],
+			'pg_dump',
+			'--host=' . $dbInfo['host'],
+			'--user=' . $dbInfo['username'],
+			'--no-password',
 		];
-		$builder->setArguments($arguments);
-		if($dumpOptions['schemaOnly']){
-			$builder->add('--schema-only');
+		if ($dumpOptions['schemaOnly'])
+		{
+			$arguments[] = '--schema-only';
 		}
-		if($dumpOptions['preset']){
-			$builder->add($dumpOptions['presetData']);
+		if ($dumpOptions['preset'])
+		{
+			$arguments[] = trim($dumpOptions['presetData']);
 		}
-		$builder->add($dbInfo['dbName']);
 
-		if($dumpOptions['isArchive']){
-			$builder->add('|gzip');
+		$arguments[] = $dbInfo['dbName'];
+		if ($dumpOptions['isArchive'])
+		{
+			$arguments[] = '|gzip';
 		}
-		$builder->add('>'.$path);
-		return $builder->getProcess()->getCommandLine();
+		$arguments[] = '>' . $path;
+		return implode(' ', $arguments);
 	}
 
 	/**
@@ -51,7 +53,27 @@ class PostgresDumpManager extends BaseDumpManager
 	 */
 	public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions)
 	{
-		// TODO: Implement makeRestoreCommand() method.
+		$arguments = [];
+		if (StringHelper::endsWith($path, '.gz', false))
+		{
+			$arguments[] = 'gunzip -c ' . $path;
+			$arguments[] = '|';
+		}
+		$arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
+		$arguments[] = 'psql';
+		$arguments[] = '--host=' . $dbInfo['host'];
+		$arguments[] = '--user=' . $dbInfo['username'];
+		$arguments[] = '--no-password';
+		if ($restoreOptions['preset'])
+		{
+			$arguments[] = trim($restoreOptions['presetData']);
+		}
+		$arguments[] = $dbInfo['dbName'];
+		if (!StringHelper::endsWith($path, '.gz', false))
+		{
+			$arguments[] = '<' . $path;
+		}
+		return implode(' ', $arguments);
 	}
 
 }

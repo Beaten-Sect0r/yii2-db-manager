@@ -38,11 +38,11 @@ Advanced ```backend/config/main.php```
             // path to directory for the dumps
             'path' => '@app/backups',
             //list of registerd db-components
-            'dbList'            => ['db', 'dbmysql', 'dbmysql2'],
+            'dbList' => ['db', 'dbmysql', 'dbmysql2'],
             //additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
             'customDumpOptions' => [
                 'mysqlForce' => '--force',
-				'somepreset'=>'--triggers --single-transaction',
+				'somepreset' => '--triggers --single-transaction',
                 'pgCompress' => '-Z2 -Fc',
             ],
             'customRestoreOptions' => [
@@ -50,13 +50,13 @@ Advanced ```backend/config/main.php```
                 'pgForce' => '-f -d',
             ],
             //Options for full customizing default command generation
-            'mysqlManagerClass'=>'CustomClass',
-            'postgresManagerClass'=>'CustomClass'
+            'mysqlManagerClass' => 'CustomClass',
+            'postgresManagerClass' => 'CustomClass'
             //Option for add additional DumpManagers
-            'createManagerCallback'=>function($dbInfo){
-                    if($dbInfo['dbName']=='exclusive'){
+            'createManagerCallback' => function($dbInfo){
+                    if ($dbInfo['dbName'] == 'exclusive') {
                          return new MyExclusiveManager;
-                      }else{
+                      } else {
                          return false;
                      }
              }
@@ -73,8 +73,9 @@ Pretty url's ```/db-manager```
 No pretty url's ```index.php?r=db-manager```
 
 
-#Changelog:
-   Multiple database management
-   Ability for customize dump and restore options; dump and restore processors
-   Ability for run operations asynchronously
-   Ability for compressing dumps
+## Changelog:
+
+- Multiple database management
+- Ability for customize dump and restore options: dump and restore processors
+- Ability for run operations asynchronously
+- Ability for compressing dumps

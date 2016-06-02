@@ -6,6 +6,8 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Module as BaseModule;
 use yii\base\UserException;
+use yii\db\Connection;
+use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
 
@@ -30,6 +32,23 @@ class Module extends BaseModule
 	public $path;
 
 	/**
+	 * You can setup favorite dump options presets foreach db
+     * @example
+	 * 'customDumpOptions'=>[
+	 *    'preset1' => '--triggers --single-transaction',
+	 *    'preset2' => ' --replace --lock-all-tables '
+	 * ]
+	 * @var array $customDumpOptions
+	**/
+	public $customDumpOptions = [];
+
+	/**
+	 * @see $customDumpOptions
+	 * @var array $customRestoreOptions
+	 **/
+	public $customRestoreOptions = [];
+
+	/**
 	 * @var array
 	 */
 	protected $dbInfo = [];
@@ -52,15 +71,11 @@ class Module extends BaseModule
 				/**
 				 * @var Connection $db
 				 **/
-				$db = Yii::$app->get($db);
-				if (!$db instanceof Connection)
-				{
-					throw new InvalidConfigException('Database must be instance of \yii\db\Connection');
-				}
+				$db = Instance::ensure($db, Connection::class);
 				$this->dbInfo['db']['driverName'] = $db->driverName;
 				$this->dbInfo['db']['dsn'] = $db->dsn;
-				$this->dbInfo['db']['host'] = $this->getDsnAttribute('host', $sb->dsn);
-				$this->dbInfo['db']['dbName'] = $this->getDsnAttribute('dbName', $sb->dsn);
+				$this->dbInfo['db']['host'] = $this->getDsnAttribute('host', $db->dsn);
+				$this->dbInfo['db']['dbName'] = $this->getDsnAttribute('dbName', $db->dsn);
 				$this->dbInfo['db']['username'] = $db->username;
 				$this->dbInfo['db']['password'] = $db->password;
 				$this->dbInfo['db']['prefix'] = $db->tablePrefix;
@@ -121,4 +136,5 @@ class Module extends BaseModule
 			return null;
 		}
 	}
+
 }

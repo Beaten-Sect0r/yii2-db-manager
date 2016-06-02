@@ -2,14 +2,19 @@
 
 namespace bs\dbManager;
 
+use bs\dbManager\contracts\IDumpManager;
+use bs\dbManager\models\MysqlDumpManager;
+use bs\dbManager\models\PostgresDumpManager;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Module as BaseModule;
+use yii\base\NotSupportedException;
 use yii\base\UserException;
 use yii\db\Connection;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
+use yii\helpers\StringHelper;
 
 /**
  * Class Module
@@ -33,13 +38,14 @@ class Module extends BaseModule
 
 	/**
 	 * You can setup favorite dump options presets foreach db
-     * @example
-	 * 'customDumpOptions'=>[
+	 *
+	 * @example
+	 *    'customDumpOptions'=>[
 	 *    'preset1' => '--triggers --single-transaction',
 	 *    'preset2' => ' --replace --lock-all-tables '
-	 * ]
+	 *    ]
 	 * @var array $customDumpOptions
-	**/
+	 **/
 	public $customDumpOptions = [];
 
 	/**
@@ -47,6 +53,15 @@ class Module extends BaseModule
 	 * @var array $customRestoreOptions
 	 **/
 	public $customRestoreOptions = [];
+
+	/**
+	 * @var string
+	 **/
+	public $mysqlManagerClass = MysqlDumpManager::class;
+	/**
+	 * @var string
+	 **/
+	public $postgresManagerClass = PostgresDumpManager::class;
 
 	/**
 	 * @var array
@@ -66,22 +81,30 @@ class Module extends BaseModule
 		parent::init();
 		if (!empty($this->dbList))
 		{
-			foreach ($this->dbList as $db)
+			if (!ArrayHelper::isIndexed($this->dbList))
+			{
+				throw  new InvalidConfigException('Property dbList must be as indexed array');
+			}
+			foreach ($this->dbList as $dbAlias)
 			{
 				/**
 				 * @var Connection $db
 				 **/
-				$db = Instance::ensure($db, Connection::class);
-				$this->dbInfo['db']['driverName'] = $db->driverName;
-				$this->dbInfo['db']['dsn'] = $db->dsn;
-				$this->dbInfo['db']['host'] = $this->getDsnAttribute('host', $db->dsn);
-				$this->dbInfo['db']['dbName'] = $this->getDsnAttribute('dbName', $db->dsn);
-				$this->dbInfo['db']['username'] = $db->username;
-				$this->dbInfo['db']['password'] = $db->password;
-				$this->dbInfo['db']['prefix'] = $db->tablePrefix;
+				$db = Instance::ensure($dbAlias, Connection::class);
+				$this->dbInfo[$dbAlias]['driverName'] = $db->driverName;
+				$this->dbInfo[$dbAlias]['dsn'] = $db->dsn;
+				$this->dbInfo[$dbAlias]['host'] = $this->getDsnAttribute('host', $db->dsn);
+				$this->dbInfo[$dbAlias]['dbName'] = $this->getDsnAttribute('dbname', $db->dsn);
+				$this->dbInfo[$dbAlias]['username'] = $db->username;
+				$this->dbInfo[$dbAlias]['password'] = $db->password;
+				$this->dbInfo[$dbAlias]['prefix'] = $db->tablePrefix;
 			}
 		}
 		$this->path = Yii::getAlias($this->path);
+		if (!StringHelper::endsWith($this->path, '/', false))
+		{
+			$this->path .= '/';
+		}
 		if (!is_dir($this->path))
 		{
 			throw new InvalidConfigException('Path is not directory');
@@ -103,7 +126,7 @@ class Module extends BaseModule
 	 */
 	public function getDbInfo($db)
 	{
-		$info = ArrayHelper::getValue($this->dbList, $db, null);
+		$info = ArrayHelper::getValue($this->dbInfo, $db, null);
 		if (!$info)
 		{
 			throw new UserException('Db with name ' . $db . ' not configured for dump');
@@ -117,6 +140,28 @@ class Module extends BaseModule
 	public function getFileList()
 	{
 		return $this->fileList;
+	}
+
+	/**
+	 * @param $driver
+	 *
+	 * @return IDumpManager
+	 * @throws NotSupportedException
+	 */
+	public function createManager($driver)
+	{
+		if ($driver === 'mysql')
+		{
+			return new $this->mysqlManagerClass;
+		}
+		elseif ($driver === 'pgsql')
+		{
+			return new $this->postgresManagerClass;
+		}
+		else
+		{
+			throw new NotSupportedException($driver . ' driver unsupported!');
+		}
 	}
 
 	/**

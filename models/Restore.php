@@ -30,7 +30,7 @@ class Dump extends Model
 	/**
 	 * @var bool
 	 */
-	public $preset = false;
+	public $preset = null;
 	/**
 	 * @var bool
 	 */

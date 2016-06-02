@@ -2,6 +2,7 @@
 
 /* @var $this yii\web\View */
 /* @var array $dbList */
+/* @var array $activePids */
 /* @var \bs\dbManager\models\Dump $model */
 /* @var $dataProvider yii\data\ArrayDataProvider */
 
@@ -14,22 +15,22 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="dbManager-default-index">
 
-
-	<?php $form = ActiveForm::begin([
-		'action' => ['create'],
-		'method' => 'post',
-		'layout' => 'inline',
-	]) ?>
-	<?= $form->field($model, 'db')->dropDownList(array_combine($dbList, $dbList)) ?>
-	<?= $form->field($model, 'isArchive')->checkbox() ?>
-	<?= $form->field($model, 'schemaOnly')->checkbox() ?>
-	<?= $form->field($model, 'runInBackground')->checkbox() ?>
-	<?php if ($model->hasPresets()): ?>
-		<?= $form->field($model, 'preset')->dropDownList($model->getCustomOptions()) ?>
-	<?php endif; ?>
-	<?= Html::submitButton(Yii::t('dbManager', 'Create dump'), ['class' => 'btn btn-success']) ?>
-	<?php ActiveForm::end(); ?>
-
+	<div class="well">
+		<?php $form = ActiveForm::begin([
+			'action' => ['create'],
+			'method' => 'post',
+			'layout' => 'inline',
+		]) ?>
+		<?= $form->field($model, 'db')->dropDownList(array_combine($dbList, $dbList), ['prompt' => '----']) ?>
+		<?= $form->field($model, 'isArchive')->checkbox() ?>
+		<?= $form->field($model, 'schemaOnly')->checkbox() ?>
+		<?= $form->field($model, 'runInBackground')->checkbox() ?>
+		<?php if ($model->hasPresets()): ?>
+			<?= $form->field($model, 'preset')->dropDownList($model->getCustomOptions(), ['prompt' => '----']) ?>
+		<?php endif; ?>
+		<?= Html::submitButton(Yii::t('dbManager', 'Create dump'), ['class' => 'btn btn-success']) ?>
+		<?php ActiveForm::end(); ?>
+	</div>
 
 	<?= Html::a(Yii::t('dbManager', 'Delete all'),
 		['delete-all'],
@@ -38,7 +39,14 @@ $this->params['breadcrumbs'][] = $this->title;
 			'data-method'  => 'post',
 			'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
 		]) ?>
-
+	<?php if (!empty($activePids)): ?>
+		<div class="well">
+			<h4><?= Yii::t('dbManager','Active Processes') ?></h4>
+			<?php foreach ($activePids as $pid => $cmd): ?>
+				<b><?= $pid ?></b>:<?= $cmd ?>
+			<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
 	<?= GridView::widget([
 		'dataProvider' => $dataProvider,
 		'columns'      => [
@@ -60,7 +68,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			],
 			[
 				'class'    => 'yii\grid\ActionColumn',
-				'template' => '{download} {restore} {delete}',
+				'template' => '{download}&nbsp;&nbsp;{restore}&nbsp;&nbsp;{delete}',
 				'buttons'  => [
 					'download' => function($url, $model)
 					{
@@ -71,6 +79,7 @@ $this->params['breadcrumbs'][] = $this->title;
 							],
 							[
 								'title' => Yii::t('dbManager', 'Download'),
+								'class' => 'btn btn-sm btn-default',
 							]);
 					},
 					'restore'  => function($url, $model)
@@ -81,9 +90,8 @@ $this->params['breadcrumbs'][] = $this->title;
 								'id' => $model['id'],
 							],
 							[
-								'data-method'  => 'post',
-								'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-								'title'        => Yii::t('dbManager', 'Restore'),
+								'title' => Yii::t('dbManager', 'Restore'),
+								'class' => 'btn btn-sm btn-default',
 							]);
 					},
 					'delete'   => function($url, $model)
@@ -94,9 +102,10 @@ $this->params['breadcrumbs'][] = $this->title;
 								'id' => $model['id'],
 							],
 							[
-								'title' => Yii::t('dbManager', 'Delete'),
+								'title'        => Yii::t('dbManager', 'Delete'),
 								'data-method'  => 'post',
 								'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
+								'class'        => 'btn btn-sm btn-danger',
 							]);
 					},
 				],

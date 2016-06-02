@@ -2,11 +2,15 @@
 
 namespace bs\dbManager\controllers;
 
+use bs\dbManager\models\Dump;
 use bs\dbManager\Module;
 use PDO;
+use Symfony\Component\Process\Process;
 use Yii;
+use yii\data\ArrayDataProvider;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\web\Controller;
 
 /**
@@ -28,11 +32,11 @@ class DefaultController extends Controller
 			'verbs' => [
 				'class'   => VerbFilter::class,
 				'actions' => [
-					'create'    => ['post'],
-					'delete'    => ['post'],
-					'deleteAll' => ['post'],
-					'restore'   => ['post'],
-					'*'         => ['get'],
+					'create'     => ['post'],
+					'delete'     => ['post'],
+					'delete-all' => ['post'],
+					'restore'    => ['post'],
+					'*'          => ['get'],
 				],
 			],
 		];
@@ -46,6 +50,7 @@ class DefaultController extends Controller
 
 		$dataArray = $this->prepareFileData();
 		$dbList = $this->getModule()->dbList;
+		$model = new Dump($dbList, $this->getModule()->customDumpOptions);
 		$dataProvider = new ArrayDataProvider([
 			'allModels'  => $dataArray,
 			'pagination' => [
@@ -53,7 +58,7 @@ class DefaultController extends Controller
 			],
 		]);
 
-		return $this->render('index', ['dataProvider' => $dataProvider, 'dbList' => $dbList]);
+		return $this->render('index', ['dataProvider' => $dataProvider, 'model' => $model, 'dbList' => $dbList]);
 
 	}
 
@@ -77,25 +82,29 @@ class DefaultController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$dump = $this->module->path . $this->module->dbName . '_' . date('Y-m-d-H-i-s') . '.sql';
-		//MySQL
-		if ($this->module->driverName === 'mysql')
+		$model = new Dump($this->getModule()->dbList, $this->getModule()->customDumpOptions);
+		if ($model->load(Yii::$app->request->post()) && $model->validate())
 		{
-			$command = 'mysqldump --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password='
-				. $this->module->password . ' --force ' . $this->module->dbName . ' > ' . $dump;
-		}
-		//PostgreSQL
-		if ($this->module->driverName === 'pgsql')
-		{
-			$command = 'PGPASSWORD=' . $this->module->password . ' pg_dump --host=' . $this->module->host
-				. ' --username=' . $this->module->username . ' --no-password ' . $this->module->dbName . ' > ' . $dump;
-		}
-		shell_exec($command);
-		Yii::$app->session->setFlash('alert', [
-			'body'    => Yii::t('dbManager', 'Dump successfully created.'),
-			'options' => ['class' => 'alert-success'],
-		]);
+			$dbInfo = $this->getModule()->getDbInfo($model->db);
+			$dumpOptions = $model->makeDumpOptions();
+			$manager = $this->getModule()->createManager($dbInfo['driverName']);
+			$dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
+			$dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
+			if ($model->runInBackground)
+			{
+				$this->runDumpAsync($dumpCommand);
+			}
+			else
+			{
+				$this->runDump($dumpCommand);
+			}
 
+		}
+		else
+		{
+			Yii::$app->session->setFlash('error', Yii::t('dbManager','Dump request invalid') . '\n' . Html::errorSummary
+			($model));
+		}
 		return $this->redirect(['index']);
 	}
 
@@ -104,9 +113,8 @@ class DefaultController extends Controller
 	 */
 	public function actionDownload($id)
 	{
-		$dump = $this->module->path . basename($this->module->files[$id]);
-
-		return Yii::$app->response->sendFile($dump);
+		$dumpPath = $this->getModule()->path . basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
+		return Yii::$app->response->sendFile($dumpPath);
 	}
 
 	/**
@@ -114,18 +122,19 @@ class DefaultController extends Controller
 	 */
 	public function actionRestore($id)
 	{
-		$dump = $this->module->path . basename($this->module->files[$id]);
+		$dumpPath = $this->getModule()->path . basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
+
 		//MySQL
 		if ($this->module->driverName === 'mysql')
 		{
 			$command = 'mysql --host=' . $this->module->host . ' --user=' . $this->module->username . ' --password='
-				. $this->module->password . ' --force ' . $this->module->dbName . ' < ' . $dump;
+				. $this->module->password . ' --force ' . $this->module->dbName . ' < ' . $dumpPath;
 		}
 		//PostgreSQL
 		if ($this->module->driverName === 'pgsql')
 		{
 			$command = 'PGPASSWORD=' . $this->module->password . ' psql --host=' . $this->module->host . ' --username='
-				. $this->module->username . ' --no-password ' . $this->module->dbName . ' < ' . $dump;
+				. $this->module->username . ' --no-password ' . $this->module->dbName . ' < ' . $dumpPath;
 		}
 		shell_exec($command);
 		Yii::$app->session->setFlash('alert', [
@@ -195,6 +204,33 @@ class DefaultController extends Controller
 		return $this->redirect(['index']);
 	}
 
+	protected function runDump($command)
+	{
+		$process = new Process($command);
+		$process->run();
+		if ($process->isSuccessful())
+		{
+			Yii::$app->session->addFlash('success', Yii::t('dbManager', 'Dump successfully created.'));
+		}
+		else
+		{
+			Yii::$app->session->addFlash('error', Yii::t('dbManager', 'Dump failed') . '\n'
+				. $process->getOutput());
+			Yii::error('Dump failed' . '\n' . $process->getOutput());
+		}
+
+	}
+
+	protected function runDumpAsync($command)
+	{
+		$process = new Process($command);
+		$process->start();
+		$pid = $process->getPid();
+		$activePids = Yii::$app->session->get('backupPids', []);
+		Yii::$app->session->set('backupPids', array_merge($activePids, [$pid => $command]));
+		Yii::$app->session->addFlash('info', Yii::t('dbManager', 'Dump process running with pid={pid}', $pid)
+			. '\n' . $command);
+	}
 
 	/**
 	 * @return array

@@ -37,5 +37,8 @@ return [
 	'As archive'=>'Архивировать?',
 	'Database'=>'Соединение с базой',
 	'Dump only schema'=>'Дамп структуры, без данных',
-	'Custom dump preset' => 'Свой шаблон опций для дампа'
+	'Custom dump preset' => 'Свой шаблон опций для дампа',
+	'run in background' =>'Запустить в фоне',
+	'Dump process running with pid={pid}'=>'Процесс запущен с pid={pid}',
+	'Dump request invalid'=>'Ошибка запроса дампа'
 ];

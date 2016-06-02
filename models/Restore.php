@@ -13,20 +13,12 @@ use yii\base\Model;
  *
  * @package bs\dbManager\models
  */
-class Dump extends Model
+class Restore extends Model
 {
 	/**
 	 * @var
 	 */
 	public $db;
-	/**
-	 * @var bool
-	 */
-	public $isArchive = true;
-	/**
-	 * @var bool
-	 */
-	public $schemaOnly = true;
 	/**
 	 * @var bool
 	 */
@@ -67,8 +59,8 @@ class Dump extends Model
 		return [
 			['db', 'required'],
 			['db', 'in', 'range' => $this->dbList],
-			[['isArchive','runInBackground','schemaOnly'], 'boolean'],
-			['preset', 'in', 'range' => $this->customOptions, 'skipOnEmpty' => true],
+			[['runInBackground'], 'boolean'],
+			['preset', 'in', 'range' => array_keys($this->customOptions), 'skipOnEmpty' => true],
 		];
 	}
 
@@ -78,10 +70,8 @@ class Dump extends Model
 	public function attributeLabels()
 	{
 		return [
-			'db'         => \Yii::t('dbManager', 'Database'),
-			'isArchive'  => \Yii::t('dbManager', 'As archive'),
-			'schemaOnly' => \Yii::t('dbManager', 'Dump only schema'),
-			'preset'     => \Yii::t('dbManager', 'Custom dump preset'),
+			'db'              => \Yii::t('dbManager', 'Database'),
+			'preset'          => \Yii::t('dbManager', 'Custom restore preset'),
 			'runInBackground' => \Yii::t('dbManager', 'run in background'),
 		];
 	}
@@ -105,13 +95,17 @@ class Dump extends Model
 	/**
 	 * @return array
 	 */
-	public function makeDumpOptions(){
+	public function makeRestoreOptions()
+	{
 		return [
-			'isArchive'=>$this->isArchive,
-			'schemaOnly'=>$this->schemaOnly,
-			'preset'=>$this->preset?$this->preset:false,
-			'presetData'=>$this->preset?$this->customOptions[$this->preset]:''
+			'preset'     => $this->preset ? $this->preset : false,
+			'presetData' => $this->preset ? $this->customOptions[$this->preset] : '',
 		];
+	}
+
+	public function getDBList()
+	{
+		return array_combine($this->dbList, $this->dbList);
 	}
 
 

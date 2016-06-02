@@ -35,9 +35,31 @@ Advanced ```backend/config/main.php```
     'modules' => [
         'db-manager' => [
             'class' => 'bs\dbManager\Module',
-            // create a directory for the dumps
-            //'path' => realpath(__DIR__ . '/../backup') . '/', // basic
-            'path' => realpath(__DIR__ . '/../../backup') . '/', // advanced
+            // path to directory for the dumps
+            'path' => '@app/backups',
+            //list of registerd db-components
+            'dbList'            => ['db', 'dbmysql', 'dbmysql2'],
+            //additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
+            'customDumpOptions' => [
+                'mysqlForce' => '--force',
+				'somepreset'=>'--triggers --single-transaction',
+                'pgCompress' => '-Z2 -Fc',
+            ],
+            'customRestoreOptions' => [
+                'mysqlForce' => '--force',
+                'pgForce' => '-f -d',
+            ],
+            //Options for full customizing default command generation
+            'mysqlManagerClass'=>'CustomClass',
+            'postgresManagerClass'=>'CustomClass'
+            //Option for add additional DumpManagers
+            'createManagerCallback'=>function($dbInfo){
+                    if($dbInfo['dbName']=='exclusive'){
+                         return new MyExclusiveManager;
+                      }else{
+                         return false;
+                     }
+             }
         ],
     ],
 ```
@@ -49,3 +71,10 @@ Make sure you create a writable directory named backup on app root directory.
 Pretty url's ```/db-manager```
 
 No pretty url's ```index.php?r=db-manager```
+
+
+#Changelog:
+   Multiple database management
+   Ability for customize dump and restore options; dump and restore processors
+   Ability for run operations asynchronously
+   Ability for compressing dumps

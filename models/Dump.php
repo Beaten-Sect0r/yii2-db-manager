@@ -22,15 +22,15 @@ class Dump extends Model
 	/**
 	 * @var bool
 	 */
-	public $isArchive = true;
+	public $isArchive = false;
 	/**
 	 * @var bool
 	 */
-	public $schemaOnly = true;
+	public $schemaOnly = false;
 	/**
 	 * @var bool
 	 */
-	public $preset = false;
+	public $preset = null;
 	/**
 	 * @var bool
 	 */
@@ -68,7 +68,7 @@ class Dump extends Model
 			['db', 'required'],
 			['db', 'in', 'range' => $this->dbList],
 			[['isArchive','runInBackground','schemaOnly'], 'boolean'],
-			['preset', 'in', 'range' => $this->customOptions, 'skipOnEmpty' => true],
+			['preset', 'in', 'range' => array_keys($this->customOptions), 'skipOnEmpty' => true],
 		];
 	}
 

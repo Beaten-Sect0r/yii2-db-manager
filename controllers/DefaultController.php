@@ -102,7 +102,7 @@ class DefaultController extends Controller
 		{
 			$dbInfo = $this->getModule()->getDbInfo($model->db);
 			$dumpOptions = $model->makeDumpOptions();
-			$manager = $this->getModule()->createManager($dbInfo['driverName']);
+			$manager = $this->getModule()->createManager($dbInfo);
 			$dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
 			$dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
 			if ($model->runInBackground)
@@ -146,7 +146,7 @@ class DefaultController extends Controller
 			{
 				$dbInfo = $this->getModule()->getDbInfo($model->db);
 				$restoreOptions = $model->makeRestoreOptions();
-				$manager = $this->getModule()->createManager($dbInfo['driverName']);
+				$manager = $this->getModule()->createManager($dbInfo);
 				$restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
 				if ($model->runInBackground)
 				{

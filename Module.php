@@ -64,6 +64,20 @@ class Module extends BaseModule
 	public $postgresManagerClass = PostgresDumpManager::class;
 
 	/**
+	 * @var callable|Closure $createManagerCallback
+	 * argument - dbInfo; expected reply - instance of bs\dbManager\contracts\IDumpManager or false, for default
+	 * @example
+	 * 'createManagerCallback'=>function($dbInfo){
+	 *           if($dbInfo['dbName']=='exclusive'){
+	 *               return new MyExclusiveManager;
+	 *           }else{
+	 *               return false;
+	 *           }
+	 * }
+	 **/
+	public $createManagerCallback;
+
+	/**
 	 * @var array
 	 */
 	protected $dbInfo = [];
@@ -143,24 +157,32 @@ class Module extends BaseModule
 	}
 
 	/**
-	 * @param $driver
+	 * @param array $dbInfo
 	 *
 	 * @return IDumpManager
 	 * @throws NotSupportedException
 	 */
-	public function createManager($driver)
+	public function createManager($dbInfo)
 	{
-		if ($driver === 'mysql')
+		if (is_callable($this->createManagerCallback))
+		{
+			$result = call_user_func($this->createManagerCallback, $dbInfo);
+			if ($result !== false)
+			{
+				return $result;
+			}
+		}
+		if ($dbInfo['driverName'] === 'mysql')
 		{
 			return new $this->mysqlManagerClass;
 		}
-		elseif ($driver === 'pgsql')
+		elseif ($dbInfo['driverName'] === 'pgsql')
 		{
 			return new $this->postgresManagerClass;
 		}
 		else
 		{
-			throw new NotSupportedException($driver . ' driver unsupported!');
+			throw new NotSupportedException($dbInfo['driverName'] . ' driver unsupported!');
 		}
 	}
 

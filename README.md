@@ -45,7 +45,7 @@ Advanced ```backend/config/main.php```
     ],
 ```
 
-## Advanced Usage
+## Advanced config
 
 ```php
     'modules' => [
@@ -91,6 +91,6 @@ No pretty url's ```index.php?r=db-manager```
 ## Changelog:
 
 - Multiple database management
-- Ability for customize dump and restore options: dump and restore processors
+- Ability for customize dump and restore options; dump and restore processors
 - Ability for run operations asynchronously
 - Ability for compressing dumps

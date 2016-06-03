@@ -17,100 +17,97 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<div class="well">
 		<?php $form = ActiveForm::begin([
-			'action' => ['create'],
-			'method' => 'post',
-			'layout' => 'inline',
-		]) ?>
+            'action' => ['create'],
+            'method' => 'post',
+            'layout' => 'inline',
+        ]) ?>
 		<?= $form->field($model, 'db')->dropDownList(array_combine($dbList, $dbList), ['prompt' => '----']) ?>
 		<?= $form->field($model, 'isArchive')->checkbox() ?>
 		<?= $form->field($model, 'schemaOnly')->checkbox() ?>
 		<?= $form->field($model, 'runInBackground')->checkbox() ?>
 		<?php if ($model->hasPresets()): ?>
 			<?= $form->field($model, 'preset')->dropDownList($model->getCustomOptions(), ['prompt' => '----']) ?>
-		<?php endif; ?>
+		<?php endif ?>
 		<?= Html::submitButton(Yii::t('dbManager', 'Create dump'), ['class' => 'btn btn-success']) ?>
-		<?php ActiveForm::end(); ?>
+		<?php ActiveForm::end() ?>
 	</div>
 
 	<?= Html::a(Yii::t('dbManager', 'Delete all'),
-		['delete-all'],
-		[
-			'class'        => 'btn btn-danger pull-right',
-			'data-method'  => 'post',
-			'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-		]) ?>
+        ['delete-all'],
+        [
+            'class' => 'btn btn-danger pull-right',
+            'data-method' => 'post',
+            'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
+        ]) ?>
 	<?php if (!empty($activePids)): ?>
 		<div class="well">
-			<h4><?= Yii::t('dbManager','Active Processes') ?></h4>
+			<h4><?= Yii::t('dbManager', 'Active Processes') ?></h4>
 			<?php foreach ($activePids as $pid => $cmd): ?>
-				<b><?= $pid ?></b>:<?= $cmd ?><br/>
-			<?php endforeach; ?>
+				<b><?= $pid ?></b>:<?= $cmd ?><br>
+			<?php endforeach ?>
 		</div>
-	<?php endif; ?>
+	<?php endif ?>
 	<?= GridView::widget([
-		'dataProvider' => $dataProvider,
-		'columns'      => [
-			[
-				'attribute' => 'type',
-				'label'     => Yii::t('dbManager', 'Type'),
-			],
-			[
-				'attribute' => 'name',
-				'label'     => Yii::t('dbManager', 'Name'),
-			],
-			[
-				'attribute' => 'size',
-				'label'     => Yii::t('dbManager', 'Size'),
-			],
-			[
-				'attribute' => 'create_at',
-				'label'     => Yii::t('dbManager', 'Create time'),
-			],
-			[
-				'class'    => 'yii\grid\ActionColumn',
-				'template' => '{download}&nbsp;&nbsp;{restore}&nbsp;&nbsp;{delete}',
-				'buttons'  => [
-					'download' => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-download"></span>',
-							[
-								'download',
-								'id' => $model['id'],
-							],
-							[
-								'title' => Yii::t('dbManager', 'Download'),
-								'class' => 'btn btn-sm btn-default',
-							]);
-					},
-					'restore'  => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-import"></span>',
-							[
-								'restore',
-								'id' => $model['id'],
-							],
-							[
-								'title' => Yii::t('dbManager', 'Restore'),
-								'class' => 'btn btn-sm btn-default',
-							]);
-					},
-					'delete'   => function($url, $model)
-					{
-						return Html::a('<span class="glyphicon glyphicon-trash"></span>',
-							[
-								'delete',
-								'id' => $model['id'],
-							],
-							[
-								'title'        => Yii::t('dbManager', 'Delete'),
-								'data-method'  => 'post',
-								'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-								'class'        => 'btn btn-sm btn-danger',
-							]);
-					},
-				],
-			],
-		],
-	]) ?>
+        'dataProvider' => $dataProvider,
+        'columns' => [
+            [
+                'attribute' => 'type',
+                'label' => Yii::t('dbManager', 'Type'),
+            ],
+            [
+                'attribute' => 'name',
+                'label' => Yii::t('dbManager', 'Name'),
+            ],
+            [
+                'attribute' => 'size',
+                'label' => Yii::t('dbManager', 'Size'),
+            ],
+            [
+                'attribute' => 'create_at',
+                'label' => Yii::t('dbManager', 'Create time'),
+            ],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{download}&nbsp;&nbsp;{restore}&nbsp;&nbsp;{delete}',
+                'buttons' => [
+                    'download' => function ($url, $model) {
+                        return Html::a('<span class="glyphicon glyphicon-download"></span>',
+                            [
+                                'download',
+                                'id' => $model['id'],
+                            ],
+                            [
+                                'title' => Yii::t('dbManager', 'Download'),
+                                'class' => 'btn btn-sm btn-default',
+                            ]);
+                    },
+                    'restore' => function ($url, $model) {
+                        return Html::a('<span class="glyphicon glyphicon-import"></span>',
+                            [
+                                'restore',
+                                'id' => $model['id'],
+                            ],
+                            [
+                                'title' => Yii::t('dbManager', 'Restore'),
+                                'class' => 'btn btn-sm btn-default',
+                            ]);
+                    },
+                    'delete' => function ($url, $model) {
+                        return Html::a('<span class="glyphicon glyphicon-trash"></span>',
+                            [
+                                'delete',
+                                'id' => $model['id'],
+                            ],
+                            [
+                                'title'        => Yii::t('dbManager', 'Delete'),
+                                'data-method'  => 'post',
+                                'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
+                                'class'        => 'btn btn-sm btn-danger',
+                            ]);
+                    },
+                ],
+            ],
+        ],
+    ]) ?>
 
 </div>

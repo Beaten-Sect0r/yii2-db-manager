@@ -16,19 +16,18 @@ $this->params['breadcrumbs'][] = $this->title;
 	<div class="well">
 		<h4><?=Yii::t('dbManager', 'Restore')?> <?=$file?></h4>
 		<?php $form = ActiveForm::begin([
-			'action' => ['restore','id'=>$id],
-			'method' => 'post',
-			'layout' => 'inline',
-		]) ?>
-		<?=$form->errorSummary($model);?>
+            'action' => ['restore','id'=>$id],
+            'method' => 'post',
+            'layout' => 'inline',
+        ]) ?>
+		<?= $form->errorSummary($model) ?>
 		<?= $form->field($model, 'db')->dropDownList($model->getDBList(), ['prompt' => '----']) ?>
 		<?= $form->field($model, 'runInBackground')->checkbox() ?>
 		<?php if ($model->hasPresets()): ?>
 			<?= $form->field($model, 'preset')->dropDownList($model->getCustomOptions(), ['prompt' => '----']) ?>
-		<?php endif; ?>
+		<?php endif ?>
 		<?= Html::submitButton(Yii::t('dbManager', 'Restore'), ['class' => 'btn btn-success']) ?>
-		<?php ActiveForm::end(); ?>
+		<?php ActiveForm::end() ?>
 	</div>
-
 
 </div>

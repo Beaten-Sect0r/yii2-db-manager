@@ -1,10 +1,10 @@
 <?php
+
 /**
  * Created by solly [02.06.16 7:45]
  */
 
 namespace bs\dbManager\contracts;
-
 
 /**
  * Interface IDumpManager
@@ -13,30 +13,27 @@ namespace bs\dbManager\contracts;
  */
 interface IDumpManager
 {
-	/**
-	 * @param       $basePath
-	 * @param array $dbInfo
-	 * @param array $dumpOptions
-	 *
-	 * @return string
-	 */
-	public function makePath($basePath, array $dbInfo, array $dumpOptions);
+    /**
+     * @param $basePath
+     * @param array $dbInfo
+     * @param array $dumpOptions
+     * @return string
+     */
+    public function makePath($basePath, array $dbInfo, array $dumpOptions);
 
-	/**
-	 * @param       $path
-	 * @param array $dbInfo
-	 * @param array $dumpOptions
-	 *
-	 * @return string
-	 */
-	public function makeDumpCommand($path, array $dbInfo, array $dumpOptions);
+    /**
+     * @param $path
+     * @param array $dbInfo
+     * @param array $dumpOptions
+     * @return string
+     */
+    public function makeDumpCommand($path, array $dbInfo, array $dumpOptions);
 
-	/**
-	 * @param       $path
-	 * @param array $dbInfo
-	 * @param array $restoreOptions
-	 *
-	 * @return string
-	 */
-	public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions);
+    /**
+     * @param $path
+     * @param array $dbInfo
+     * @param array $restoreOptions
+     * @return string
+     */
+    public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions);
 }

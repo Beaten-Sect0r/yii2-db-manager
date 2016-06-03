@@ -36,7 +36,7 @@ class PostgresDumpManager extends BaseDumpManager
         if ($dumpOptions['isArchive']) {
             $arguments[] = '|gzip';
         }
-        $arguments[] = '>' . $path;
+        $arguments[] = '> ' . $path;
 
         return implode(' ', $arguments);
     }
@@ -64,7 +64,7 @@ class PostgresDumpManager extends BaseDumpManager
         }
         $arguments[] = $dbInfo['dbName'];
         if (!StringHelper::endsWith($path, '.gz', false)) {
-            $arguments[] = '<' . $path;
+            $arguments[] = '< ' . $path;
         }
 
         return implode(' ', $arguments);

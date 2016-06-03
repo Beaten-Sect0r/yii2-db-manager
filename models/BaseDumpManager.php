@@ -28,7 +28,7 @@ abstract class BaseDumpManager implements IDumpManager
             $dbInfo['dbName'],
             ($dumpOptions['schemaOnly'] ? 'schema' : 'full'),
             ($dumpOptions['preset'] ? $dumpOptions['preset'] : 'default'),
-             date('Y-m-d_H:i:s'),
+            date('Y-m-d-H-i-s'),
             ($dumpOptions['isArchive'] ? 'sql.gz' : 'sql')
         );
     }

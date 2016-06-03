@@ -31,21 +31,7 @@ Basic ```config/web.php```
 
 Advanced ```backend/config/main.php```
 
-Simple config
-----------
-```php
-'modules' => [
-        'db-manager' => [
-            'class' => 'bs\dbManager\Module',
-            // path to directory for the dumps
-            'path' => '@app/backups',
-            //list of registerd db-components
-            'dbList'            => ['db'],
-            ],
-        ]
-```
-Advanced Usage
--------------
+## Simple config
 
 ```php
     'modules' => [
@@ -53,29 +39,43 @@ Advanced Usage
             'class' => 'bs\dbManager\Module',
             // path to directory for the dumps
             'path' => '@app/backups',
-            //list of registerd db-components
+            // list of registerd db-components
+            'dbList' => ['db'],
+        ],
+    ],
+```
+
+## Advanced Usage
+
+```php
+    'modules' => [
+        'db-manager' => [
+            'class' => 'bs\dbManager\Module',
+            // path to directory for the dumps
+            'path' => '@app/backups',
+            // list of registerd db-components
             'dbList' => ['db', 'dbmysql', 'dbmysql2'],
-            //additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
+            // additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
             'customDumpOptions' => [
                 'mysqlForce' => '--force',
-				'somepreset' => '--triggers --single-transaction',
+                'somepreset' => '--triggers --single-transaction',
                 'pgCompress' => '-Z2 -Fc',
             ],
             'customRestoreOptions' => [
                 'mysqlForce' => '--force',
                 'pgForce' => '-f -d',
             ],
-            //Options for full customizing default command generation
+            // options for full customizing default command generation
             'mysqlManagerClass' => 'CustomClass',
-            'postgresManagerClass' => 'CustomClass'
-            //Option for add additional DumpManagers
-            'createManagerCallback' => function($dbInfo){
-                    if ($dbInfo['dbName'] == 'exclusive') {
-                         return new MyExclusiveManager;
-                      } else {
-                         return false;
-                     }
-             }
+            'postgresManagerClass' => 'CustomClass',
+            // option for add additional DumpManagers
+            'createManagerCallback' => function($dbInfo) {
+                if ($dbInfo['dbName'] == 'exclusive') {
+                    return new MyExclusiveManager;
+                } else {
+                    return false;
+                }
+            }
         ],
     ],
 ```
@@ -87,7 +87,6 @@ Make sure you create a writable directory named backup on app root directory.
 Pretty url's ```/db-manager```
 
 No pretty url's ```index.php?r=db-manager```
-
 
 ## Changelog:
 

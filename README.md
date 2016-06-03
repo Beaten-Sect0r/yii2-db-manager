@@ -2,7 +2,7 @@
 
 MySQL/PostgreSQL Database Backup and Restore functionality
 
-<img src="scrren.jpg">
+<img src="screenshot.png">
 
 ## Installation
 

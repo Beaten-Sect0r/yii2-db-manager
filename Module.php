@@ -125,7 +125,7 @@ class Module extends BaseModule
 		}
 		if (!is_writable($this->path))
 		{
-			throw new InvalidConfigException('Path is not writeable! Check chmod!');
+			throw new InvalidConfigException('Path is not writable! Check chmod!');
 		}
 		$this->fileList = FileHelper::findFiles($this->path, ['only' => ['*.sql', '*.gz']]);
 	}

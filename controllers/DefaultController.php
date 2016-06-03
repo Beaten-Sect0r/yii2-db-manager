@@ -105,6 +105,7 @@ class DefaultController extends Controller
 			$manager = $this->getModule()->createManager($dbInfo);
 			$dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
 			$dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
+			Yii::trace(compact('dumpCommand','dumpPath','dumpOptions'),get_called_class());
 			if ($model->runInBackground)
 			{
 				$this->runProcessAsync($dumpCommand);
@@ -148,6 +149,7 @@ class DefaultController extends Controller
 				$restoreOptions = $model->makeRestoreOptions();
 				$manager = $this->getModule()->createManager($dbInfo);
 				$restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
+				Yii::trace(compact('restoreCommand','dumpFile','restoreOptions'),get_called_class());
 				if ($model->runInBackground)
 				{
 					$this->runProcessAsync($restoreCommand, true);

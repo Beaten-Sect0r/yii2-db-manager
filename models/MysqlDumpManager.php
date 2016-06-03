@@ -68,8 +68,9 @@ class MysqlDumpManager extends BaseDumpManager
 			$arguments[] = trim($restoreOptions['presetData']);
 		}
 		$arguments[] = $dbInfo['dbName'];
-		if (!StringHelper::endsWith($path, '.gz', false)){
-			$arguments[] = ' < ' .$path;
+		if (!StringHelper::endsWith($path, '.gz', false))
+		{
+			$arguments[] = ' < ' . $path;
 		}
 
 		return implode(' ', $arguments);

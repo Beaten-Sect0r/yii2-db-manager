@@ -31,6 +31,22 @@ Basic ```config/web.php```
 
 Advanced ```backend/config/main.php```
 
+Simple config
+----------
+```php
+'modules' => [
+        'db-manager' => [
+            'class' => 'bs\dbManager\Module',
+            // path to directory for the dumps
+            'path' => '@app/backups',
+            //list of registerd db-components
+            'dbList'            => ['db'],
+            ],
+        ]
+```
+Advanced Usage
+-------------
+
 ```php
     'modules' => [
         'db-manager' => [

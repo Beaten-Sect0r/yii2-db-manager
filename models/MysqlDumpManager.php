@@ -21,6 +21,7 @@ class MysqlDumpManager extends BaseDumpManager
         $arguments = [
             'mysqldump',
             '--host=' . $dbInfo['host'],
+            '--port=' . $dbInfo['port'],
             '--user=' . $dbInfo['username'],
             '--password=' . $dbInfo['password'],
         ];
@@ -31,7 +32,6 @@ class MysqlDumpManager extends BaseDumpManager
             $arguments[] = trim($dumpOptions['presetData']);
         }
         $arguments[] = $dbInfo['dbName'];
-
         if ($dumpOptions['isArchive']) {
             $arguments[] = '|gzip';
         }
@@ -55,6 +55,7 @@ class MysqlDumpManager extends BaseDumpManager
         $arguments = array_merge($arguments, [
             'mysql',
             '--host=' . $dbInfo['host'],
+            '--port=' . $dbInfo['port'],
             '--user=' . $dbInfo['username'],
             '--password=' . $dbInfo['password'],
         ]);

@@ -19,10 +19,11 @@ class PostgresDumpManager extends BaseDumpManager
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
         $arguments = [
-            'PGPASSWORD=' . $dbInfo['password'],
             'pg_dump',
             '--host=' . $dbInfo['host'],
-            '--user=' . $dbInfo['username'],
+            '--port=' . $dbInfo['port'],
+            '--username=' . $dbInfo['username'],
+            '--password=' . $dbInfo['password'],
             '--no-password',
         ];
         if ($dumpOptions['schemaOnly']) {
@@ -31,7 +32,6 @@ class PostgresDumpManager extends BaseDumpManager
         if ($dumpOptions['preset']) {
             $arguments[] = trim($dumpOptions['presetData']);
         }
-
         $arguments[] = $dbInfo['dbName'];
         if ($dumpOptions['isArchive']) {
             $arguments[] = '|gzip';
@@ -54,11 +54,14 @@ class PostgresDumpManager extends BaseDumpManager
             $arguments[] = 'gunzip -c ' . $path;
             $arguments[] = '|';
         }
-        $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
-        $arguments[] = 'psql';
-        $arguments[] = '--host=' . $dbInfo['host'];
-        $arguments[] = '--user=' . $dbInfo['username'];
-        $arguments[] = '--no-password';
+        $arguments = array_merge($arguments, [
+            'psql',
+            '--host=' . $dbInfo['host'],
+            '--port=' . $dbInfo['port'],
+            '--username=' . $dbInfo['username'],
+            '--password=' . $dbInfo['password'],
+            '--no-password',
+        ]);
         if ($restoreOptions['preset']) {
             $arguments[] = trim($restoreOptions['presetData']);
         }

@@ -12,6 +12,7 @@ use bs\dbManager\models\Dump;
 use bs\dbManager\models\Restore;
 use bs\dbManager\Module;
 use PDO;
+use PDOException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -81,7 +82,7 @@ class DefaultController extends Controller
         try {
             new PDO($info['dsn'], $info['username'], $info['password']);
             Yii::$app->session->setFlash('sussess', 'Connection success:');
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             Yii::$app->session->setFlash('error', 'Connection failed: ' . $e->getMessage());
         }
 

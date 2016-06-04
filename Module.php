@@ -109,6 +109,7 @@ class Module extends BaseModule
                 $this->dbInfo[$dbAlias]['driverName'] = $db->driverName;
                 $this->dbInfo[$dbAlias]['dsn'] = $db->dsn;
                 $this->dbInfo[$dbAlias]['host'] = $this->getDsnAttribute('host', $db->dsn);
+                $this->dbInfo[$dbAlias]['port'] = $this->getDsnAttribute('port', $db->dsn);
                 $this->dbInfo[$dbAlias]['dbName'] = $this->getDsnAttribute('dbname', $db->dsn);
                 $this->dbInfo[$dbAlias]['username'] = $db->username;
                 $this->dbInfo[$dbAlias]['password'] = $db->password;

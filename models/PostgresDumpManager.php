@@ -19,11 +19,11 @@ class PostgresDumpManager extends BaseDumpManager
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
         $arguments = [
+            'PGPASSWORD=' . $dbInfo['password'],
             'pg_dump',
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],
             '--username=' . $dbInfo['username'],
-            '--password=' . $dbInfo['password'],
             '--no-password',
         ];
         if ($dumpOptions['schemaOnly']) {
@@ -55,12 +55,12 @@ class PostgresDumpManager extends BaseDumpManager
             $arguments[] = '|';
         }
         $arguments = array_merge($arguments, [
+            'PGPASSWORD=' . $dbInfo['password'],
             'psql',
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],
             '--username=' . $dbInfo['username'],
             '--password=' . $dbInfo['password'],
-            '--no-password',
         ]);
         if ($restoreOptions['preset']) {
             $arguments[] = trim($restoreOptions['presetData']);

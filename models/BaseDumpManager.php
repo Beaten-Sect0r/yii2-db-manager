@@ -52,7 +52,7 @@ abstract class BaseDumpManager implements IDumpManager
     /**
      * Windows or not windows.
      *
-     * @return string
+     * @return boolean
      */
     public function isWindows()
     {

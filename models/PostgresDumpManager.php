@@ -18,7 +18,7 @@ class PostgresDumpManager extends BaseDumpManager
      */
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        if ($this->isWindows()) {
             $arguments[] = 'SET PGPASSWORD=' . $dbInfo['password'];
             $arguments[] = '&';
         } else {
@@ -59,7 +59,7 @@ class PostgresDumpManager extends BaseDumpManager
             $arguments[] = 'gunzip -c ' . $path;
             $arguments[] = '|';
         }
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        if ($this->isWindows()) {
             $arguments[] = 'SET PGPASSWORD=' . $dbInfo['password'];
             $arguments[] = '&';
         } else {

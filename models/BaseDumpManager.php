@@ -34,7 +34,7 @@ abstract class BaseDumpManager implements IDumpManager
     }
 
     /**
-     * @param       $path
+     * @param $path
      * @param array $dbInfo
      * @param array $dumpOptions
      * @return string
@@ -42,10 +42,20 @@ abstract class BaseDumpManager implements IDumpManager
     abstract public function makeDumpCommand($path, array $dbInfo, array $dumpOptions);
 
     /**
-     * @param       $path
+     * @param $path
      * @param array $dbInfo
      * @param array $restoreOptions
      * @return string
      */
     abstract public function makeRestoreCommand($path, array $dbInfo, array $restoreOptions);
+
+    /**
+     * Windows or not windows.
+     *
+     * @return string
+     */
+    public function isWindows()
+    {
+        return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    }
 }

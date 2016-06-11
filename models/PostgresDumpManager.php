@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by solly [02.06.16 11:12]
- */
-
 namespace bs\dbManager\models;
 
 use yii\helpers\StringHelper;
@@ -19,7 +15,7 @@ class PostgresDumpManager extends BaseDumpManager
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
         if ($this->isWindows()) {
-            $arguments[] = 'SET PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = 'set PGPASSWORD=' . $dbInfo['password'];
             $arguments[] = '&';
         } else {
             $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
@@ -39,9 +35,11 @@ class PostgresDumpManager extends BaseDumpManager
         }
         $arguments[] = $dbInfo['dbName'];
         if ($dumpOptions['isArchive']) {
-            $arguments[] = '|gzip';
+            $arguments[] = '|';
+            $arguments[] = 'gzip';
         }
-        $arguments[] = '> ' . $path;
+        $arguments[] = '>';
+        $arguments[] = $path;
 
         return implode(' ', $arguments);
     }
@@ -56,11 +54,12 @@ class PostgresDumpManager extends BaseDumpManager
     {
         $arguments = [];
         if (StringHelper::endsWith($path, '.gz', false)) {
-            $arguments[] = 'gunzip -c ' . $path;
+            $arguments[] = 'gunzip -c';
+            $arguments[] = $path;
             $arguments[] = '|';
         }
         if ($this->isWindows()) {
-            $arguments[] = 'SET PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = 'set PGPASSWORD=' . $dbInfo['password'];
             $arguments[] = '&';
         } else {
             $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
@@ -77,7 +76,8 @@ class PostgresDumpManager extends BaseDumpManager
         }
         $arguments[] = $dbInfo['dbName'];
         if (!StringHelper::endsWith($path, '.gz', false)) {
-            $arguments[] = '< ' . $path;
+            $arguments[] = '<';
+            $arguments[] = $path;
         }
 
         return implode(' ', $arguments);

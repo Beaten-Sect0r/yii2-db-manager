@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by solly [02.06.16 9:46]
- */
-
 namespace bs\dbManager\models;
 
 use Yii;
@@ -76,7 +72,7 @@ class Restore extends Model
         return [
             'db' => Yii::t('dbManager', 'Database'),
             'preset'  => Yii::t('dbManager', 'Custom restore preset'),
-            'runInBackground' => Yii::t('dbManager', 'run in background'),
+            'runInBackground' => Yii::t('dbManager', 'Run in background'),
         ];
     }
 

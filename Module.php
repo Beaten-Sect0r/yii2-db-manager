@@ -105,7 +105,7 @@ class Module extends BaseModule
                 /**
                  * @var Connection $db
                  */
-                $db = Instance::ensure($dbAlias, Connection::class);
+                $db = Instance::ensure($dbAlias, Connection::className());
                 $this->dbInfo[$dbAlias]['driverName'] = $db->driverName;
                 $this->dbInfo[$dbAlias]['dsn'] = $db->dsn;
                 $this->dbInfo[$dbAlias]['host'] = $this->getDsnAttribute('host', $db->dsn);

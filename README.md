@@ -54,7 +54,7 @@ Advanced ```backend/config/main.php```
             // path to directory for the dumps
             'path' => '@app/backups',
             // list of registerd db-components
-            'dbList' => ['db', 'dbmysql', 'dbmysql2'],
+            'dbList' => ['db', 'db1', 'db2'],
             // additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
             'customDumpOptions' => [
                 'mysqlForce' => '--force',

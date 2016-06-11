@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by solly [02.06.16 11:11]
- */
-
 namespace bs\dbManager\models;
 
 use yii\helpers\StringHelper;
@@ -33,9 +29,11 @@ class MysqlDumpManager extends BaseDumpManager
         }
         $arguments[] = $dbInfo['dbName'];
         if ($dumpOptions['isArchive']) {
-            $arguments[] = '|gzip';
+            $arguments[] = '|';
+            $arguments[] = 'gzip';
         }
-        $arguments[] = '> ' . $path;
+        $arguments[] = '>';
+        $arguments[] = $path;
 
         return implode(' ', $arguments);
     }
@@ -50,7 +48,9 @@ class MysqlDumpManager extends BaseDumpManager
     {
         $arguments = [];
         if (StringHelper::endsWith($path, '.gz', false)) {
-            $arguments[] = 'gunzip -c ' . $path . ' |';
+            $arguments[] = 'gunzip -c';
+            $arguments[] = $path;
+            $arguments[] = '|';
         }
         $arguments = array_merge($arguments, [
             'mysql',
@@ -64,7 +64,8 @@ class MysqlDumpManager extends BaseDumpManager
         }
         $arguments[] = $dbInfo['dbName'];
         if (!StringHelper::endsWith($path, '.gz', false)) {
-            $arguments[] = '< ' . $path;
+            $arguments[] = '<';
+            $arguments[] = $path;
         }
 
         return implode(' ', $arguments);

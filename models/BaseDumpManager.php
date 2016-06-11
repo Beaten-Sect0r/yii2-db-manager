@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by solly [02.06.16 7:46]
- */
-
 namespace bs\dbManager\models;
 
 use bs\dbManager\contracts\IDumpManager;
@@ -28,7 +24,7 @@ abstract class BaseDumpManager implements IDumpManager
             $dbInfo['dbName'],
             ($dumpOptions['schemaOnly'] ? 'schema' : 'full'),
             ($dumpOptions['preset'] ? $dumpOptions['preset'] : 'default'),
-            date('Y-m-d-H-i-s'),
+            date('Y-m-d_H-i-s'),
             ($dumpOptions['isArchive'] ? 'sql.gz' : 'sql')
         );
     }
@@ -52,9 +48,9 @@ abstract class BaseDumpManager implements IDumpManager
     /**
      * Windows or not windows.
      *
-     * @return boolean
+     * @return bool
      */
-    public function isWindows()
+    public static function isWindows()
     {
         return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     }

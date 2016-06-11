@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by solly [02.06.16 9:46]
- */
-
 namespace bs\dbManager\models;
 
 use Yii;
@@ -86,10 +82,10 @@ class Dump extends Model
     {
         return [
             'db' => Yii::t('dbManager', 'Database'),
-            'isArchive' => Yii::t('dbManager', 'As archive'),
+            'isArchive' => Yii::t('dbManager', 'gzip'),
             'schemaOnly' => Yii::t('dbManager', 'Dump only schema'),
             'preset' => Yii::t('dbManager', 'Custom dump preset'),
-            'runInBackground' => Yii::t('dbManager', 'run in background'),
+            'runInBackground' => Yii::t('dbManager', 'Run in background'),
         ];
     }
 

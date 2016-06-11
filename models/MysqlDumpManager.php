@@ -14,6 +14,10 @@ class MysqlDumpManager extends BaseDumpManager
      */
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
+        // default port
+        if (empty($dbInfo['port'])) {
+            $dbInfo['port'] = '3306';
+        }
         $arguments = [
             'mysqldump',
             '--host=' . $dbInfo['host'],
@@ -51,6 +55,10 @@ class MysqlDumpManager extends BaseDumpManager
             $arguments[] = 'gunzip -c';
             $arguments[] = $path;
             $arguments[] = '|';
+        }
+        // default port
+        if (empty($dbInfo['port'])) {
+            $dbInfo['port'] = '3306';
         }
         $arguments = array_merge($arguments, [
             'mysql',

@@ -205,7 +205,7 @@ class DefaultController extends Controller
             Yii::$app->session->addFlash('success', $msg);
         } else {
             $msg = (!$isRestore) ? Yii::t('dbManager', 'Dump failed.') : Yii::t('dbManager', 'Restore failed.');
-            Yii::$app->session->addFlash('error', $msg. '<br>' . 'Command - ' . $command . $process->getOutput() . $process->getErrorOutput());
+            Yii::$app->session->addFlash('error', $msg . '<br>' . 'Command - ' . $command . '<br>' . $process->getOutput() . $process->getErrorOutput());
             Yii::error($msg . PHP_EOL . 'Command - ' . $command . PHP_EOL . $process->getOutput() . PHP_EOL . $process->getErrorOutput());
         }
     }
@@ -226,7 +226,7 @@ class DefaultController extends Controller
                 Yii::$app->session->addFlash('success', $msg);
             } else {
                 $msg = (!$isRestore) ? Yii::t('dbManager', 'Dump failed.') : Yii::t('dbManager', 'Restore failed.');
-                Yii::$app->session->addFlash('error', $msg . '<br>' . 'Command - ' . $command . $process->getOutput() . $process->getErrorOutput());
+                Yii::$app->session->addFlash('error', $msg . '<br>' . 'Command - ' . $command . '<br>' . $process->getOutput() . $process->getErrorOutput());
                 Yii::error($msg . PHP_EOL . 'Command - ' . $command . PHP_EOL . $process->getOutput() . PHP_EOL . $process->getErrorOutput());
             }
         } else {

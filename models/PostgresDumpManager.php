@@ -20,6 +20,10 @@ class PostgresDumpManager extends BaseDumpManager
         } else {
             $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
         }
+        // default port
+        if (empty($dbInfo['port'])) {
+            $dbInfo['port'] = '5432';
+        }
         $arguments = array_merge($arguments, [
             'pg_dump',
             '--host=' . $dbInfo['host'],
@@ -63,6 +67,10 @@ class PostgresDumpManager extends BaseDumpManager
             $arguments[] = '&';
         } else {
             $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
+        }
+        // default port
+        if (empty($dbInfo['port'])) {
+            $dbInfo['port'] = '5432';
         }
         $arguments = array_merge($arguments, [
             'psql',

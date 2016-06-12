@@ -10,13 +10,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 
 Either run
 
-```
+```bash
 composer require --prefer-dist beaten-sect0r/yii2-db-manager "*"
 ```
 
 or add
 
-```
+```bash
 "beaten-sect0r/yii2-db-manager": "*"
 ```
 

@@ -16,7 +16,7 @@ composer require --prefer-dist beaten-sect0r/yii2-db-manager "*"
 
 or add
 
-```bash
+```
 "beaten-sect0r/yii2-db-manager": "*"
 ```
 

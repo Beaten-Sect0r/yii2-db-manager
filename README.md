@@ -55,7 +55,7 @@ Advanced ```backend/config/main.php```
             'path' => '@app/backups',
             // list of registerd db-components
             'dbList' => ['db', 'db1', 'db2'],
-            // additional mysqldump/pgdump presets (available for choosing in dump and restore forms)
+            // additional mysqldump/pg_dump presets (available for choosing in dump and restore forms)
             'customDumpOptions' => [
                 'mysqlForce' => '--force',
                 'somepreset' => '--triggers --single-transaction',

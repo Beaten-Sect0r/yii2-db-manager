@@ -58,7 +58,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => 'btn btn-danger',
                 'data-method' => 'post',
                 'data-confirm' => Yii::t('dbManager', 'Are you sure?'),
-            ]) ?>
+            ]
+        ) ?>
     </p>
 
     <?= GridView::widget([

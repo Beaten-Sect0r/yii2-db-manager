@@ -1,8 +1,13 @@
 # Yii2 DB manager
 
+[![Total Downloads](https://poser.pugx.org/beaten-sect0r/yii2-db-manager/downloads?format=flat-square)](https://packagist.org/packages/beaten-sect0r/yii2-db-manager)
+[![Latest Stable Version](https://poser.pugx.org/beaten-sect0r/yii2-db-manager/v/stable?format=flat-square)](https://packagist.org/packages/beaten-sect0r/yii2-db-manager)
+[![Latest Unstable Version](https://poser.pugx.org/beaten-sect0r/yii2-db-manager/v/unstable?format=flat-square)](https://packagist.org/packages/beaten-sect0r/yii2-db-manager)
+[![License](https://poser.pugx.org/beaten-sect0r/yii2-db-manager/license?format=flat-square)](https://packagist.org/packages/beaten-sect0r/yii2-db-manager)
+
 MySQL/PostgreSQL Database Backup and Restore functionality
 
-<img src="screenshot.png">
+![screenshot](screenshot.png)
 
 ## Installation
 
@@ -88,7 +93,7 @@ Pretty url's ```/db-manager```
 
 No pretty url's ```index.php?r=db-manager```
 
-## Changelog:
+## Changelog
 
 - Multiple database management
 - Ability for customize dump and restore options; dump and restore processors

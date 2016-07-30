@@ -1,6 +1,6 @@
 {
     "name": "beaten-sect0r/yii2-db-manager",
-    "description": "The db dump manager module for Yii2.",
+    "description": "The db dump manager module for Yii2",
     "keywords": ["yii2", "backup", "db manager", "dump"],
     "authors": [
         {

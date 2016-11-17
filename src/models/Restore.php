@@ -6,9 +6,7 @@ use Yii;
 use yii\base\Model;
 
 /**
- * Class Dump
- *
- * @package bs\dbManager\models
+ * Class Restore.
  */
 class Restore extends Model
 {

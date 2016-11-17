@@ -4,6 +4,9 @@ namespace bs\dbManager\models;
 
 use yii\helpers\StringHelper;
 
+/**
+ * Class MysqlDumpManager.
+ */
 class MysqlDumpManager extends BaseDumpManager
 {
     /**

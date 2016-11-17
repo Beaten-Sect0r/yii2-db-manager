@@ -11,13 +11,16 @@
  * template configuration file with detaild description for each parameter.
  */
 return [
-    'sourcePath' => '@bs/dbManager',
-    'messagePath' => '@bs/dbManager/messages',
+    'color' => null,
+    'interactive' => true,
+    'sourcePath' => '@bs/dbManager/src',
+    'messagePath' => '@bs/dbManager/src/messages',
     'languages' => ['ru-RU'],
     'translator' => 'Yii::t',
     'sort' => true,
     'overwrite' => true,
     'removeUnused' => true,
+    'markUnused' => false,
     'except' => [
         '.svn',
         '.git',
@@ -31,4 +34,6 @@ return [
         '*.php',
     ],
     'format' => 'php',
+    'catalog' => 'messages',
+    'ignoreCategories' => [],
 ];

@@ -3,7 +3,7 @@
 namespace bs\dbManager\contracts;
 
 /**
- * Interface IDumpManager
+ * Interface IDumpManager.
  *
  * @package bs\dbManager\contracts
  */

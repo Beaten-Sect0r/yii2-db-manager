@@ -5,9 +5,7 @@ namespace bs\dbManager\models;
 use bs\dbManager\contracts\IDumpManager;
 
 /**
- * Class BaseDumpManager
- *
- * @package bs\dbManager\service
+ * Class BaseDumpManager.
  */
 abstract class BaseDumpManager implements IDumpManager
 {

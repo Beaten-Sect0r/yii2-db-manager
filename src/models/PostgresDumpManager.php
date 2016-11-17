@@ -4,6 +4,9 @@ namespace bs\dbManager\models;
 
 use yii\helpers\StringHelper;
 
+/**
+ * Class PostgresDumpManager.
+ */
 class PostgresDumpManager extends BaseDumpManager
 {
     /**

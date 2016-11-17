@@ -17,28 +17,28 @@ use bs\dbManager\models\MysqlDumpManager;
 use bs\dbManager\models\PostgresDumpManager;
 
 /**
- * Class Module
+ * Class Module.
  *
  * @package bs\dbManager
  */
 class Module extends BaseModule
 {
     /**
-     * Array of available db-components for dump
+     * Array of available db-components for dump.
      *
      * @var array $db
      */
     public $dbList = ['db'];
 
     /**
-     * Path for backup directory
+     * Path for backup directory.
      *
      * @var string $path
      */
     public $path;
 
     /**
-     * You can setup favorite dump options presets foreach db
+     * You can setup favorite dump options presets foreach db.
      *
      * @example
      *    'customDumpOptions' => [
@@ -130,7 +130,7 @@ class Module extends BaseModule
     }
 
     /**
-     * Get info for selected database
+     * Get info for selected database.
      *
      * @param $db
      * @return array

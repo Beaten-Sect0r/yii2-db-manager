@@ -46,6 +46,14 @@ Advanced ```backend/config/main.php```
             'path' => '@app/backups',
             // list of registerd db-components
             'dbList' => ['db'],
+            'as access' => [
+                'class' => 'yii\filters\AccessControl',
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
+            ],
         ],
     ],
 ```
@@ -81,6 +89,14 @@ Advanced ```backend/config/main.php```
                     return false;
                 }
             }
+            'as access' => [
+                'class' => 'yii\filters\AccessControl',
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
+            ],
         ],
     ],
 ```

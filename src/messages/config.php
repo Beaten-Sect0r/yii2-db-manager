@@ -13,8 +13,8 @@
 return [
     'color' => null,
     'interactive' => true,
-    'sourcePath' => '@bs/dbManager/src',
-    'messagePath' => '@bs/dbManager/src/messages',
+    'sourcePath' => '@bs/dbManager',
+    'messagePath' => '@bs/dbManager/messages',
     'languages' => ['ru-RU'],
     'translator' => 'Yii::t',
     'sort' => true,

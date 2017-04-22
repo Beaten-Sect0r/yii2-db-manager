@@ -29,7 +29,6 @@ or add
 
 to the require section of your `composer.json` file.
 
-
 ## Configuration
 
 Once the extension is installed, simply add it in your config by:

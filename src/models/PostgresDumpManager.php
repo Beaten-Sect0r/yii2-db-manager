@@ -2,6 +2,7 @@
 
 namespace bs\dbManager\models;
 
+use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 
 /**
@@ -27,7 +28,7 @@ class PostgresDumpManager extends BaseDumpManager
         if (empty($dbInfo['port'])) {
             $dbInfo['port'] = '5432';
         }
-        $arguments = array_merge($arguments, [
+        $arguments = ArrayHelper::merge($arguments, [
             'pg_dump',
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],
@@ -75,7 +76,7 @@ class PostgresDumpManager extends BaseDumpManager
         if (empty($dbInfo['port'])) {
             $dbInfo['port'] = '5432';
         }
-        $arguments = array_merge($arguments, [
+        $arguments = ArrayHelper::merge($arguments, [
             'psql',
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],

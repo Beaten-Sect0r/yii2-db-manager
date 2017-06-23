@@ -86,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{download}&nbsp;&nbsp;{restore}&nbsp;&nbsp;{delete}',
+                'template' => '{download} {restore} {delete}',
                 'buttons' => [
                     'download' => function ($url, $model) {
                         return Html::a('<span class="glyphicon glyphicon-download"></span>',

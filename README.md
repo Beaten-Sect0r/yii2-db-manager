@@ -102,6 +102,20 @@ Advanced ```backend/config/main.php```
     ],
 ```
 
+## Console config
+
+```php
+    'modules' => [
+        'db-manager' => [
+            'class' => 'bs\dbManager\Module',
+            // path to directory for the dumps
+            'path' => '@app/backups',
+            // list of registerd db-components
+            'dbList' => ['db'],
+        ],
+    ],
+```
+
 Make sure you create a writable directory named backup on app root directory.
 
 ## Usage
@@ -110,8 +124,15 @@ Pretty url's ```/db-manager```
 
 No pretty url's ```index.php?r=db-manager```
 
+Console
+
+```bash
+php yii dump db gzip
+```
+
 ## Changelog
 
+- Console support
 - Multiple database management
 - Ability for customize dump and restore options; dump and restore processors
 - Ability for run operations asynchronously

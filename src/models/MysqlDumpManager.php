@@ -2,6 +2,7 @@
 
 namespace bs\dbManager\models;
 
+use yii\helpers\ArrayHelper;
 use yii\helpers\StringHelper;
 
 /**
@@ -63,7 +64,7 @@ class MysqlDumpManager extends BaseDumpManager
         if (empty($dbInfo['port'])) {
             $dbInfo['port'] = '3306';
         }
-        $arguments = array_merge($arguments, [
+        $arguments = ArrayHelper::merge($arguments, [
             'mysql',
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],

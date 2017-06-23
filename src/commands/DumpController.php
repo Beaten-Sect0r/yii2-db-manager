@@ -7,11 +7,23 @@ use yii\console\Controller;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use bs\dbManager\models\Dump;
+use PDO;
+use PDOException;
 use Symfony\Component\Process\Process;
 
+/**
+ * Database backup manager.
+ */
 class DumpController extends Controller
 {
-    public function actionIndex($db, $isArchive = false)
+    public $defaultAction = 'create';
+
+    /**
+     * Create database dump.
+     *
+     * @param string $db and $isArchive.
+     */
+    public function actionCreate($db, $isArchive = false)
     {
         $module = Yii::$app->getModule('db-manager');
         $model = new Dump($module->dbList, $module->customDumpOptions);
@@ -33,7 +45,28 @@ class DumpController extends Controller
                 Console::output('Dump failed.');
             }
         } else {
-            Console::output('Data base configuration not found.');
+            Console::output('Database configuration not found.');
+        }
+    }
+
+    /**
+     * Test connection to database.
+     *
+     * @param string $db.
+     */
+    public function actionTestConnection($db)
+    {
+        $module = Yii::$app->getModule('db-manager');
+        if (ArrayHelper::isIn($db, $module->dbList)) {
+            $info = $module->getDbInfo($db);
+            try {
+                new PDO($info['dsn'], $info['username'], $info['password']);
+                Console::output('Connection success.');
+            } catch (PDOException $e) {
+                Console::output('Connection failed: ' . $e->getMessage());
+            }
+        } else {
+            Console::output('Database configuration not found.');
         }
     }
 }

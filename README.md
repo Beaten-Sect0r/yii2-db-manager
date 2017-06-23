@@ -127,7 +127,8 @@ No pretty url's ```index.php?r=db-manager```
 Console
 
 ```bash
-php yii dump db gzip
+php yii dump/create db gzip
+php yii dump/test-connection db
 ```
 
 ## Changelog

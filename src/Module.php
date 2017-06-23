@@ -140,7 +140,7 @@ class Module extends BaseModule
     {
         $info = ArrayHelper::getValue($this->dbInfo, $db, null);
         if (!$info) {
-            throw new UserException('Db with name ' . $db . ' not configured for dump');
+            throw new UserException('Database with name ' . $db . ' not configured for dump.');
         }
 
         return $info;

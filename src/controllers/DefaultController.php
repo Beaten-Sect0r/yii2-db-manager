@@ -72,18 +72,22 @@ class DefaultController extends Controller
     }
 
     /**
-     * @param $dbname
+     * @param $db
      * @return \yii\web\Response
      * @throws \yii\base\UserException
      */
-    public function actionTestConnection($dbname)
+    public function actionTestConnection($db)
     {
-        $info = $this->getModule()->getDbInfo($dbname);
-        try {
-            new PDO($info['dsn'], $info['username'], $info['password']);
-            Yii::$app->session->setFlash('sussess', 'Connection success:');
-        } catch (PDOException $e) {
-            Yii::$app->session->setFlash('error', 'Connection failed: ' . $e->getMessage());
+        if (ArrayHelper::isIn($db, $this->getModule()->dbList)) {
+            $info = $this->getModule()->getDbInfo($db);
+            try {
+                new PDO($info['dsn'], $info['username'], $info['password']);
+                Yii::$app->session->setFlash('success', 'Connection success.');
+            } catch (PDOException $e) {
+                Yii::$app->session->setFlash('error', 'Connection failed: ' . $e->getMessage());
+            }
+        } else {
+            Yii::$app->session->setFlash('error', 'Database configuration not found.');
         }
 
         return $this->redirect('index');

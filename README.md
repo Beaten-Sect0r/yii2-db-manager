@@ -145,6 +145,7 @@ Console
 
 ```bash
 php yii dump/create db gzip
+php yii dump/restore db filename.sql
 php yii dump/test-connection db
 ```
 

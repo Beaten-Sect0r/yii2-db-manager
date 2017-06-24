@@ -7,6 +7,7 @@ use yii\console\Controller;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use bs\dbManager\models\Dump;
+use bs\dbManager\models\Restore;
 use PDO;
 use PDOException;
 use Symfony\Component\Process\Process;
@@ -42,7 +43,35 @@ class DumpController extends Controller
             if ($process->isSuccessful()) {
                 Console::output('Dump successfully created.');
             } else {
-                Console::output('Dump failed.');
+                Console::output('Dump failed create.');
+            }
+        } else {
+            Console::output('Database configuration not found.');
+        }
+    }
+
+    /**
+     * Restore database dump.
+     *
+     * @param string $db and $dumpName.
+     */
+    public function actionRestore($db, $dumpName)
+    {
+        $module = Yii::$app->getModule('db-manager');
+        $model = new Restore($module->dbList, $module->customRestoreOptions);
+        $dumpFile = $module->path . $dumpName;
+        if (ArrayHelper::isIn($db, $module->dbList)) {
+            $dbInfo = $module->getDbInfo($db);
+            $restoreOptions = $model->makeRestoreOptions();
+            $manager = $module->createManager($dbInfo);
+            $restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
+            Yii::trace(compact('restoreCommand', 'dumpFile', 'restoreOptions'), get_called_class());
+            $process = new Process($restoreCommand);
+            $process->run();
+            if ($process->isSuccessful()) {
+                Console::output('Dump successfully restored.');
+            } else {
+                Console::output('Dump failed restored.');
             }
         } else {
             Console::output('Database configuration not found.');

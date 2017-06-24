@@ -62,6 +62,23 @@ Advanced ```backend/config/main.php```
 ## Advanced config
 
 ```php
+    'components' => [
+        // https://github.com/creocoder/yii2-flysystem
+        'backupStorage' => [
+            'class' => 'creocoder\flysystem\FtpFilesystem',
+            'host' => 'ftp.example.com',
+            //'port' => 21,
+            //'username' => 'your-username',
+            //'password' => 'your-password',
+            //'ssl' => true,
+            //'timeout' => 60,
+            //'root' => '/path/to/root',
+            //'permPrivate' => 0700,
+            //'permPublic' => 0744,
+            //'passive' => false,
+            //'transferMode' => FTP_TEXT,
+        ],
+    ],
     'modules' => [
         'db-manager' => [
             'class' => 'bs\dbManager\Module',
@@ -133,6 +150,7 @@ php yii dump/test-connection db
 
 ## Changelog
 
+- [Flysystem support](https://github.com/creocoder/yii2-flysystem)
 - Console support
 - Multiple database management
 - Ability for customize dump and restore options; dump and restore processors

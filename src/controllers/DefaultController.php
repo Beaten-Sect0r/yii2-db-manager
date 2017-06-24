@@ -11,8 +11,6 @@ use yii\web\Controller;
 use bs\dbManager\models\Dump;
 use bs\dbManager\models\Restore;
 use bs\dbManager\Module;
-use PDO;
-use PDOException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -69,28 +67,6 @@ class DefaultController extends Controller
             'dbList' => $dbList,
             'activePids' => $activePids,
         ]);
-    }
-
-    /**
-     * @param $db
-     * @return \yii\web\Response
-     * @throws \yii\base\UserException
-     */
-    public function actionTestConnection($db)
-    {
-        if (ArrayHelper::isIn($db, $this->getModule()->dbList)) {
-            $info = $this->getModule()->getDbInfo($db);
-            try {
-                new PDO($info['dsn'], $info['username'], $info['password']);
-                Yii::$app->session->setFlash('success', 'Connection success.');
-            } catch (PDOException $e) {
-                Yii::$app->session->setFlash('error', 'Connection failed: ' . $e->getMessage());
-            }
-        } else {
-            Yii::$app->session->setFlash('error', 'Database configuration not found.');
-        }
-
-        return $this->redirect('index');
     }
 
     /**
@@ -157,6 +133,28 @@ class DefaultController extends Controller
             'file' => $dumpFile,
             'id' => $id,
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function actionStorage($id)
+    {
+        if (Yii::$app->has('backupStorage')) {
+            $dumpname = basename(ArrayHelper::getValue($this->getModule()->getFileList(), $id));
+            $dumpPath = $this->getModule()->path . $dumpname;
+            $exists = Yii::$app->backupStorage->has($dumpname);
+            if ($exists) {
+                Yii::$app->backupStorage->delete($dumpname);
+                Yii::$app->session->setFlash('success', Yii::t('dbManager', 'Dump deleted from storage.'));
+            } else {
+                $stream = fopen($dumpPath, 'r+');
+                Yii::$app->backupStorage->writeStream($dumpname, $stream);
+                Yii::$app->session->setFlash('success', Yii::t('dbManager', 'Dump uploaded to storage.'));
+            }
+        }
+
+        return $this->redirect(['index']);
     }
 
     /**

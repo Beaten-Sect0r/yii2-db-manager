@@ -86,10 +86,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{download} {restore} {delete}',
+                'template' => '{download} {restore} {storage} {delete}',
                 'buttons' => [
                     'download' => function ($url, $model) {
-                        return Html::a('<span class="glyphicon glyphicon-download"></span>',
+                        return Html::a('<span class="glyphicon glyphicon-download-alt"></span>',
                             [
                                 'download',
                                 'id' => $model['id'],
@@ -109,6 +109,21 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'title' => Yii::t('dbManager', 'Restore'),
                                 'class' => 'btn btn-sm btn-default',
                             ]);
+                    },
+                    'storage' => function ($url, $model) {
+                        if (Yii::$app->has('backupStorage')) {
+                            $exists = Yii::$app->backupStorage->has($model['name']);
+
+                            return Html::a('<span class="glyphicon glyphicon-cloud-upload"></span>',
+                                [
+                                    'storage',
+                                    'id' => $model['id'],
+                                ],
+                                [
+                                    'title' => $exists ? Yii::t('dbManager', 'Delete from storage') : Yii::t('dbManager', 'Upload from storage'),
+                                    'class' => $exists ? 'btn btn-sm btn-danger' : 'btn btn-sm btn-success',
+                                ]);
+                        }
                     },
                     'delete' => function ($url, $model) {
                         return Html::a('<span class="glyphicon glyphicon-trash"></span>',

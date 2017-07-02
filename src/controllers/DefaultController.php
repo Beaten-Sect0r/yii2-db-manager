@@ -10,7 +10,6 @@ use yii\helpers\Html;
 use yii\web\Controller;
 use bs\dbManager\models\Dump;
 use bs\dbManager\models\Restore;
-use bs\dbManager\Module;
 use Symfony\Component\Process\Process;
 
 /**
@@ -267,7 +266,6 @@ class DefaultController extends Controller
      */
     protected function prepareFileData()
     {
-        $dataArray = [];
         foreach ($this->getModule()->getFileList() as $id => $file) {
             $columns = [];
             $columns['id'] = $id;

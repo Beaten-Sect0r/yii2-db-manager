@@ -5,7 +5,9 @@ namespace bs\dbManager\commands;
 use Yii;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
+use yii\helpers\BaseStringHelper;
 use yii\helpers\Console;
+use yii\helpers\FileHelper;
 use bs\dbManager\models\Dump;
 use bs\dbManager\models\Restore;
 use PDO;
@@ -17,30 +19,69 @@ use Symfony\Component\Process\Process;
  */
 class DumpController extends Controller
 {
+    public $db;
+    public $gzip = false;
+    public $storage = false;
+    public $file = null;
+
     public $defaultAction = 'create';
+
+    public function options($actionID)
+    {
+        return [
+            'db',
+            'gzip',
+            'storage',
+            'file',
+        ];
+    }
+    
+    public function optionAliases()
+    {
+        return [
+            'db' => 'db',
+            'gz' => 'gzip',
+            's' => 'storage',
+            'f' => 'file',
+        ];
+    }
+
+    /**
+     * @return Module
+     */
+    public function getModule()
+    {
+        return Yii::$app->getModule('db-manager');
+    }
 
     /**
      * Create database dump.
-     *
-     * @param string $db and $isArchive.
      */
-    public function actionCreate($db, $isArchive = false)
+    public function actionCreate()
     {
-        $module = Yii::$app->getModule('db-manager');
-        $model = new Dump($module->dbList, $module->customDumpOptions);
-        if (ArrayHelper::isIn($db, $module->dbList)) {
-            $dbInfo = $module->getDbInfo($db);
+        $model = new Dump($this->getModule()->dbList);
+        if (ArrayHelper::isIn($this->db, $this->getModule()->dbList)) {
+            $dbInfo = $this->getModule()->getDbInfo($this->db);
             $dumpOptions = $model->makeDumpOptions();
-            if ($isArchive == 'gzip') {
+            if ($this->gzip) {
                 $dumpOptions['isArchive'] = true;
             }
-            $manager = $module->createManager($dbInfo);
-            $dumpPath = $manager->makePath($module->path, $dbInfo, $dumpOptions);
+            $manager = $this->getModule()->createManager($dbInfo);
+            $dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
             $dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
             Yii::trace(compact('dumpCommand', 'dumpPath', 'dumpOptions'), get_called_class());
             $process = new Process($dumpCommand);
             $process->run();
             if ($process->isSuccessful()) {
+                if ($this->storage) {
+                    if (Yii::$app->has('backupStorage')) {
+                        $dumpText = fopen($dumpPath, 'r');
+                        Yii::$app->backupStorage->write(BaseStringHelper::basename($dumpPath), $dumpText);
+                        fclose($dumpText);
+                    } else {
+                        Console::output('Storage component is not configured.');
+                    }
+                }
                 Console::output('Dump successfully created.');
             } else {
                 Console::output('Dump failed create.');
@@ -52,22 +93,61 @@ class DumpController extends Controller
 
     /**
      * Restore database dump.
-     *
-     * @param string $db and $dumpName.
      */
-    public function actionRestore($db, $dumpName)
+    public function actionRestore()
     {
-        $module = Yii::$app->getModule('db-manager');
-        $model = new Restore($module->dbList, $module->customRestoreOptions);
-        $dumpFile = $module->path . $dumpName;
-        if (ArrayHelper::isIn($db, $module->dbList)) {
-            $dbInfo = $module->getDbInfo($db);
+        $model = new Restore($this->getModule()->dbList);
+        if (is_null($this->file)) {
+            if ($this->storage) {
+                foreach (Yii::$app->backupStorage->listContents() as $file) {
+                    $array = [];
+                    $array['basename'] = $file['basename'];
+                    $array['timestamp'] = $file['timestamp'];
+                    $fileList[] = $array;
+                }
+            } else {
+                foreach ($this->getModule()->getFileList() as $file) {
+                    $array = [];
+                    $array['basename'] = basename($file);
+                    $array['timestamp'] = filectime($file);
+                    $fileList[] = $array;
+                }
+            }
+            ArrayHelper::multisort($fileList, ['timestamp'], [SORT_DESC]);
+            $this->file = ArrayHelper::getValue(array_shift($fileList), 'basename');
+        }
+        $dumpFile = null;
+        if ($this->storage) {
+            if (Yii::$app->backupStorage->has($this->file)) {
+                $runtime = Yii::getAlias('@runtime/backups');
+                if (!is_dir($runtime)) {
+                    FileHelper::createDirectory($runtime);
+                }
+                $dumpFile = $runtime . '/' . $this->file;
+                file_put_contents($dumpFile, Yii::$app->backupStorage->read($this->file));
+            } else {
+                $runtime = null;
+                Console::output('File not found.');
+            }
+        } else {
+            $fileExists = $this->getModule()->path . $this->file;
+            if (file_exists($fileExists)) {
+                $dumpFile = $fileExists;
+            } else {
+                Console::output('File not found.');
+            }
+        }
+        if (ArrayHelper::isIn($this->db, $this->getModule()->dbList)) {
+            $dbInfo = $this->getModule()->getDbInfo($this->db);
             $restoreOptions = $model->makeRestoreOptions();
-            $manager = $module->createManager($dbInfo);
+            $manager = $this->getModule()->createManager($dbInfo);
             $restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
             Yii::trace(compact('restoreCommand', 'dumpFile', 'restoreOptions'), get_called_class());
             $process = new Process($restoreCommand);
             $process->run();
+            if (!is_null($runtime)) {
+                FileHelper::removeDirectory($runtime);
+            }
             if ($process->isSuccessful()) {
                 Console::output('Dump successfully restored.');
             } else {
@@ -80,14 +160,11 @@ class DumpController extends Controller
 
     /**
      * Test connection to database.
-     *
-     * @param string $db.
      */
-    public function actionTestConnection($db)
+    public function actionTestConnection()
     {
-        $module = Yii::$app->getModule('db-manager');
-        if (ArrayHelper::isIn($db, $module->dbList)) {
-            $info = $module->getDbInfo($db);
+        if (ArrayHelper::isIn($this->db, $this->getModule()->dbList)) {
+            $info = $this->getModule()->getDbInfo($this->db);
             try {
                 new PDO($info['dsn'], $info['username'], $info['password']);
                 Console::output('Connection success.');

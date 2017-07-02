@@ -5,9 +5,9 @@ namespace bs\dbManager\commands;
 use Yii;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
-use yii\helpers\BaseStringHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
+use yii\helpers\StringHelper;
 use bs\dbManager\models\Dump;
 use bs\dbManager\models\Restore;
 use PDO;
@@ -76,7 +76,7 @@ class DumpController extends Controller
                 if ($this->storage) {
                     if (Yii::$app->has('backupStorage')) {
                         $dumpText = fopen($dumpPath, 'r');
-                        Yii::$app->backupStorage->write(BaseStringHelper::basename($dumpPath), $dumpText);
+                        Yii::$app->backupStorage->write(StringHelper::basename($dumpPath), $dumpText);
                         fclose($dumpText);
                     } else {
                         Console::output('Storage component is not configured.');
@@ -99,16 +99,20 @@ class DumpController extends Controller
         $model = new Restore($this->getModule()->dbList);
         if (is_null($this->file)) {
             if ($this->storage) {
-                foreach (Yii::$app->backupStorage->listContents() as $file) {
-                    $array = [];
-                    $array['basename'] = $file['basename'];
-                    $array['timestamp'] = $file['timestamp'];
-                    $fileList[] = $array;
+                if (Yii::$app->has('backupStorage')) {
+                    foreach (Yii::$app->backupStorage->listContents() as $file) {
+                        $array = [];
+                        $array['basename'] = $file['basename'];
+                        $array['timestamp'] = $file['timestamp'];
+                        $fileList[] = $array;
+                    }
+                } else {
+                    Console::output('Storage component is not configured.');
                 }
             } else {
                 foreach ($this->getModule()->getFileList() as $file) {
                     $array = [];
-                    $array['basename'] = basename($file);
+                    $array['basename'] = StringHelper::basename($file);
                     $array['timestamp'] = filectime($file);
                     $fileList[] = $array;
                 }
@@ -116,18 +120,22 @@ class DumpController extends Controller
             ArrayHelper::multisort($fileList, ['timestamp'], [SORT_DESC]);
             $this->file = ArrayHelper::getValue(array_shift($fileList), 'basename');
         }
+        $runtime = null;
         $dumpFile = null;
         if ($this->storage) {
-            if (Yii::$app->backupStorage->has($this->file)) {
-                $runtime = Yii::getAlias('@runtime/backups');
-                if (!is_dir($runtime)) {
-                    FileHelper::createDirectory($runtime);
+            if (Yii::$app->has('backupStorage')) {
+                if (Yii::$app->backupStorage->has($this->file)) {
+                    $runtime = Yii::getAlias('@runtime/backups');
+                    if (!is_dir($runtime)) {
+                        FileHelper::createDirectory($runtime);
+                    }
+                    $dumpFile = $runtime . '/' . $this->file;
+                    file_put_contents($dumpFile, Yii::$app->backupStorage->read($this->file));
+                } else {
+                    Console::output('File not found.');
                 }
-                $dumpFile = $runtime . '/' . $this->file;
-                file_put_contents($dumpFile, Yii::$app->backupStorage->read($this->file));
             } else {
-                $runtime = null;
-                Console::output('File not found.');
+                Console::output('Storage component is not configured.');
             }
         } else {
             $fileExists = $this->getModule()->path . $this->file;

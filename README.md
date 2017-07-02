@@ -141,7 +141,7 @@ Pretty url's ```/db-manager```
 
 No pretty url's ```index.php?r=db-manager```
 
-Console
+## Console usage
 
 ```-db``` - db component
 

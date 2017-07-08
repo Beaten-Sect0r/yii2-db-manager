@@ -174,6 +174,7 @@ php yii dump/restore -db=db -s -f=dump.sql
 Test database connection
 
 ```bash
+php yii dump/test-connection
 php yii dump/test-connection -db=db
 ```
 

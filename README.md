@@ -143,17 +143,18 @@ No pretty url's ```index.php?r=db-manager```
 
 ## Console usage
 
-```-db``` - db component
+```-db``` - db component, default value: `db`
 
 ```-gz``` - gzip archive
 
 ```-s``` - file storage
 
-```-f``` - file name
+```-f``` - file name, default last dump
 
 Create dump
 
 ```bash
+php yii dump/create
 php yii dump/create -db=db
 php yii dump/create -db=db -gz
 php yii dump/create -db=db -s
@@ -163,6 +164,7 @@ php yii dump/create -db=db -gz -s
 Restore dump
 
 ```bash
+php yii dump/restore
 php yii dump/restore -db=db
 php yii dump/restore -db=db -s
 php yii dump/restore -db=db -f=dump.sql

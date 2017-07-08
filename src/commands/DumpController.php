@@ -19,7 +19,7 @@ use Symfony\Component\Process\Process;
  */
 class DumpController extends Controller
 {
-    public $db;
+    public $db = 'db';
     public $gzip = false;
     public $storage = false;
     public $file = null;
@@ -101,20 +101,20 @@ class DumpController extends Controller
             if ($this->storage) {
                 if (Yii::$app->has('backupStorage')) {
                     foreach (Yii::$app->backupStorage->listContents() as $file) {
-                        $array = [];
-                        $array['basename'] = $file['basename'];
-                        $array['timestamp'] = $file['timestamp'];
-                        $fileList[] = $array;
+                        $fileList[] = [
+                            'basename' => $file['basename'],
+                            'timestamp' => $file['timestamp'],
+                        ];
                     }
                 } else {
                     Console::output('Storage component is not configured.');
                 }
             } else {
                 foreach ($this->getModule()->getFileList() as $file) {
-                    $array = [];
-                    $array['basename'] = StringHelper::basename($file);
-                    $array['timestamp'] = filectime($file);
-                    $fileList[] = $array;
+                    $fileList[] = [
+                        'basename' => StringHelper::basename($file),
+                        'timestamp' => filectime($file),
+                    ];
                 }
             }
             ArrayHelper::multisort($fileList, ['timestamp'], [SORT_DESC]);

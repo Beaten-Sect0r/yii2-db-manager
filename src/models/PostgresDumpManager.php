@@ -19,10 +19,10 @@ class PostgresDumpManager extends BaseDumpManager
     public function makeDumpCommand($path, array $dbInfo, array $dumpOptions)
     {
         if ($this->isWindows()) {
-            $arguments[] = 'set PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = "set PGPASSWORD='{$dbInfo['password']}'";
             $arguments[] = '&';
         } else {
-            $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = "PGPASSWORD='{$dbInfo['password']}'";
         }
         // default port
         if (empty($dbInfo['port'])) {
@@ -67,10 +67,10 @@ class PostgresDumpManager extends BaseDumpManager
             $arguments[] = '|';
         }
         if ($this->isWindows()) {
-            $arguments[] = 'set PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = "set PGPASSWORD='{$dbInfo['password']}'";
             $arguments[] = '&';
         } else {
-            $arguments[] = 'PGPASSWORD=' . $dbInfo['password'];
+            $arguments[] = "PGPASSWORD='{$dbInfo['password']}'";
         }
         // default port
         if (empty($dbInfo['port'])) {

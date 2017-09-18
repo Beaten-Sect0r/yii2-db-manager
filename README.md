@@ -154,27 +154,18 @@ No pretty url's ```index.php?r=db-manager```
 Create dump
 
 ```bash
-php yii dump/create
-php yii dump/create -db=db
-php yii dump/create -db=db -gz
-php yii dump/create -db=db -s
 php yii dump/create -db=db -gz -s
 ```
 
 Restore dump
 
 ```bash
-php yii dump/restore
-php yii dump/restore -db=db
-php yii dump/restore -db=db -s
-php yii dump/restore -db=db -f=dump.sql
 php yii dump/restore -db=db -s -f=dump.sql
 ```
 
 Test database connection
 
 ```bash
-php yii dump/test-connection
 php yii dump/test-connection -db=db
 ```
 

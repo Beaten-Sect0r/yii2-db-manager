@@ -75,8 +75,8 @@ class DumpController extends Controller
             if ($process->isSuccessful()) {
                 if ($this->storage) {
                     if (Yii::$app->has('backupStorage')) {
-                        $dumpText = fopen($dumpPath, 'r');
-                        Yii::$app->backupStorage->write(StringHelper::basename($dumpPath), $dumpText);
+                        $dumpText = fopen($dumpPath, 'r+');
+                        Yii::$app->backupStorage->writeStream(StringHelper::basename($dumpPath), $dumpText);
                         fclose($dumpText);
                     } else {
                         Console::output('Storage component is not configured.');

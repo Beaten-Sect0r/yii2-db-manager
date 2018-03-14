@@ -35,7 +35,7 @@ class DumpController extends Controller
             'file',
         ];
     }
-    
+
     public function optionAliases()
     {
         return [
@@ -54,11 +54,32 @@ class DumpController extends Controller
         return Yii::$app->getModule('db-manager');
     }
 
+    private function deleteFiles()
+    {
+        $lastFiles = $this->getModule()->lastFiles;
+        $path = Yii::getAlias($this->getModule()->path);
+
+        $files = FileHelper::findFiles($path, ['only' => ['*.sql', '*.gz'], 'recursive' => FALSE]);
+
+        usort($files, function ($x, $y) {
+            return filemtime($x) > filemtime($y);
+        });
+
+        $allFiles = count($files);
+        foreach ($files as $file) {
+            if ($allFiles == $lastFiles) break;
+            FileHelper::unlink($file);
+            $allFiles--;
+        }
+    }
+
     /**
      * Create database dump.
      */
     public function actionCreate()
     {
+        $this->deleteFiles();
+
         $model = new Dump($this->getModule()->dbList);
         if (ArrayHelper::isIn($this->db, $this->getModule()->dbList)) {
             $dbInfo = $this->getModule()->getDbInfo($this->db);

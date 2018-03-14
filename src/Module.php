@@ -89,6 +89,9 @@ class Module extends BaseModule
      */
     protected $fileList = [];
 
+
+    public $lastFiles = 3;
+
     /**
      * @throws InvalidConfigException
      * @throws \yii\base\InvalidConfigException

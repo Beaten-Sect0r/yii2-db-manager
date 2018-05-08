@@ -163,6 +163,12 @@ Restore dump
 php yii dump/restore -db=db -s -f=dump.sql
 ```
 
+Deleting all dumps
+
+```bash
+php yii dump/delete-all
+```
+
 Test database connection
 
 ```bash

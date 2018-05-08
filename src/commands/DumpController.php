@@ -167,6 +167,30 @@ class DumpController extends Controller
     }
 
     /**
+     * Deleting all dumps.
+     */
+    public function actionDeleteAll()
+    {
+        Console::output('Do you want to delete all dumps? [yes|no]');
+        $answer = trim(fgets(STDIN));
+        if (!strncasecmp($answer, 'y', 1)) {
+            if (!empty($this->getModule()->getFileList())) {
+                $fail = [];
+                foreach ($this->getModule()->getFileList() as $file) {
+                    if (!unlink($file)) {
+                        $fail[] = $file;
+                    }
+                }
+                if (empty($fail)) {
+                    Console::output('All dumps successfully removed.');
+                } else {
+                    Console::output('Error deleting dumps.');
+                }
+            }
+        }
+    }
+
+    /**
      * Test connection to database.
      */
     public function actionTestConnection()

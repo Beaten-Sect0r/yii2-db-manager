@@ -120,7 +120,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     'id' => $model['id'],
                                 ],
                                 [
-                                    'title' => $exists ? Yii::t('dbManager', 'Delete from storage') : Yii::t('dbManager', 'Upload from storage'),
+                                    'title' => $exists ? Yii::t('dbManager', 'Delete from storage') : Yii::t('dbManager', 'Upload to storage'),
                                     'class' => $exists ? 'btn btn-sm btn-danger' : 'btn btn-sm btn-success',
                                 ]);
                         }

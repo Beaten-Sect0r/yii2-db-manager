@@ -267,6 +267,7 @@ class DefaultController extends Controller
      */
     protected function prepareFileData()
     {
+        $dataArray = [];
         foreach ($this->getModule()->getFileList() as $id => $file) {
             $columns = [];
             $columns['id'] = $id;

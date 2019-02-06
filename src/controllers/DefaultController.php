@@ -267,7 +267,6 @@ class DefaultController extends Controller
      */
     protected function prepareFileData()
     {
-        $dataArray = [];
         foreach ($this->getModule()->getFileList() as $id => $file) {
             $columns = [];
             $columns['id'] = $id;
@@ -275,6 +274,7 @@ class DefaultController extends Controller
             $columns['name'] = StringHelper::basename($file);
             $columns['size'] = Yii::$app->formatter->asSize(filesize($file));
             $columns['create_at'] = Yii::$app->formatter->asDatetime(filectime($file));
+            $dataArray = [];
             $dataArray[] = $columns;
         }
         ArrayHelper::multisort($dataArray, ['create_at'], [SORT_DESC]);

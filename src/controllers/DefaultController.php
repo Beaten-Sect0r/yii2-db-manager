@@ -279,6 +279,6 @@ class DefaultController extends Controller
         }
         ArrayHelper::multisort($dataArray, ['create_at'], [SORT_DESC]);
 
-        return $dataArray;
+        return $dataArray ?: [];
     }
 }

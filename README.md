@@ -54,6 +54,7 @@ Advanced ```backend/config/main.php```
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
+                ],
             ],
         ],
     ],

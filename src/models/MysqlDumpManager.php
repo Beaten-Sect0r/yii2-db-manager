@@ -27,7 +27,7 @@ class MysqlDumpManager extends BaseDumpManager
             '--host=' . $dbInfo['host'],
             '--port=' . $dbInfo['port'],
             '--user=' . $dbInfo['username'],
-            '--password=' . $dbInfo['password'],
+            '--password=' . "'" . $dbInfo['password'] . "'",
         ];
         if ($dumpOptions['schemaOnly']) {
             $arguments[] = '--no-data';

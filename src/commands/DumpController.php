@@ -71,6 +71,7 @@ class DumpController extends Controller
             $dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
             Yii::trace(compact('dumpCommand', 'dumpPath', 'dumpOptions'), get_called_class());
             $process = new Process($dumpCommand);
+            $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if ($process->isSuccessful()) {
                 if ($this->storage) {
@@ -152,6 +153,7 @@ class DumpController extends Controller
             $restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
             Yii::trace(compact('restoreCommand', 'dumpFile', 'restoreOptions'), get_called_class());
             $process = new Process($restoreCommand);
+            $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if (!is_null($runtime)) {
                 FileHelper::removeDirectory($runtime);

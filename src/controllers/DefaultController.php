@@ -201,6 +201,7 @@ class DefaultController extends Controller
     protected function runProcess($command, $isRestore = false)
     {
         $process = new Process($command);
+        $process->setTimeout($this->getModule()->timeout);
         $process->run();
         if ($process->isSuccessful()) {
             $msg = (!$isRestore) ? Yii::t('dbManager', 'Dump successfully created.') : Yii::t('dbManager', 'Dump successfully restored.');
@@ -219,6 +220,7 @@ class DefaultController extends Controller
     protected function runProcessAsync($command, $isRestore = false)
     {
         $process = new Process($command);
+        $process->setTimeout($this->getModule()->timeout);
         $process->start();
         $pid = $process->getPid();
         $activePids = Yii::$app->session->get('backupPids', []);
@@ -248,6 +250,7 @@ class DefaultController extends Controller
         if (!empty($activePids)) {
             foreach ($activePids as $pid => $cmd) {
                 $process = new Process('ps -p ' . $pid);
+                $process->setTimeout($this->getModule()->timeout);
                 $process->run();
                 if (!$process->isSuccessful()) {
                     Yii::$app->session->addFlash('success',

@@ -54,7 +54,6 @@ Advanced ```backend/config/main.php```
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
-                ],
             ],
         ],
     ],
@@ -87,6 +86,8 @@ Advanced ```backend/config/main.php```
             'path' => '@app/backups',
             // list of registerd db-components
             'dbList' => ['db', 'db1', 'db2'],
+            // Process timeout
+            'timeout' => 3600,
             // additional mysqldump/pg_dump presets (available for choosing in dump and restore forms)
             'customDumpOptions' => [
                 'mysqlForce' => '--force',
@@ -115,7 +116,6 @@ Advanced ```backend/config/main.php```
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
-                ],
             ],
         ],
     ],

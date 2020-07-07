@@ -74,17 +74,28 @@ class DumpController extends Controller
             $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if ($process->isSuccessful()) {
+				$uploadResult = true;
                 if ($this->storage) {
                     if (Yii::$app->has('backupStorage')) {
-                        $dumpText = fopen($dumpPath, 'r+');
-                        Yii::$app->backupStorage->writeStream(StringHelper::basename($dumpPath), $dumpText);
-                        fclose($dumpText);
+						Console::output('Opening: '.$dumpPath);
+						
+						$storage = Yii::createObject([
+							'class' => 'creocoder\flysystem\LocalFilesystem',
+							'path' => dirname($dumpPath),
+						]);
+                        //$dumpText = fopen($dumpPath, 'r+');
+                        $uploadResult = Yii::$app->backupStorage->writeStream(StringHelper::basename($dumpPath), $storage->readStream(StringHelper::basename($dumpPath)));
+                        //fclose($dumpText);
+						//Console::output(print_r($uploadResult, 1));
                     } else {
                         Console::output('Storage component is not configured.');
                     }
                 }
-                Console::output('Dump successfully created.');
+				if ($uploadResult !== false) {
+					Console::output('Dump successfully created.');
+				}
             } else {
+				//Console::output(print_r($process->getErrorOutput(), 1));
                 Console::output('Dump failed create.');
             }
         } else {

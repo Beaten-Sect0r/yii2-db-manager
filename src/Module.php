@@ -96,6 +96,9 @@ class Module extends BaseModule
      */
     protected $fileList = [];
 
+
+    public $lastFiles = 3;
+
     /**
      * @throws InvalidConfigException
      * @throws \yii\base\InvalidConfigException
@@ -119,6 +122,7 @@ class Module extends BaseModule
                 $this->dbInfo[$dbAlias]['username'] = $db->username;
                 $this->dbInfo[$dbAlias]['password'] = $db->password;
                 $this->dbInfo[$dbAlias]['prefix'] = $db->tablePrefix;
+                $this->dbInfo[$dbAlias]['attributes'] = $db->attributes;
             }
         }
         $this->path = Yii::getAlias($this->path);

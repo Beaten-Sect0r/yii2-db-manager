@@ -35,7 +35,7 @@ class DumpController extends Controller
             'file',
         ];
     }
-    
+
     public function optionAliases()
     {
         return [
@@ -54,11 +54,32 @@ class DumpController extends Controller
         return Yii::$app->getModule('db-manager');
     }
 
+    private function deleteFiles()
+    {
+        $lastFiles = $this->getModule()->lastFiles;
+        $path = Yii::getAlias($this->getModule()->path);
+
+        $files = FileHelper::findFiles($path, ['only' => ['*.sql', '*.gz'], 'recursive' => FALSE]);
+
+        usort($files, function ($x, $y) {
+            return filemtime($x) > filemtime($y);
+        });
+
+        $allFiles = count($files);
+        foreach ($files as $file) {
+            if ($allFiles == $lastFiles) break;
+            FileHelper::unlink($file);
+            $allFiles--;
+        }
+    }
+
     /**
      * Create database dump.
      */
     public function actionCreate()
     {
+        $this->deleteFiles();
+
         $model = new Dump($this->getModule()->dbList);
         if (ArrayHelper::isIn($this->db, $this->getModule()->dbList)) {
             $dbInfo = $this->getModule()->getDbInfo($this->db);
@@ -70,7 +91,7 @@ class DumpController extends Controller
             $dumpPath = $manager->makePath($this->getModule()->path, $dbInfo, $dumpOptions);
             $dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
             Yii::trace(compact('dumpCommand', 'dumpPath', 'dumpOptions'), get_called_class());
-            $process = new Process($dumpCommand);
+            $process = new Process($dumpCommand, null, null, null, 60 * 30);
             $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if ($process->isSuccessful()) {
@@ -78,7 +99,7 @@ class DumpController extends Controller
                 if ($this->storage) {
                     if (Yii::$app->has('backupStorage')) {
 						Console::output('Opening: '.$dumpPath);
-						
+
 						$storage = Yii::createObject([
 							'class' => 'creocoder\flysystem\LocalFilesystem',
 							'path' => dirname($dumpPath),

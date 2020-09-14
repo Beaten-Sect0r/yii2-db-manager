@@ -29,6 +29,9 @@ class MysqlDumpManager extends BaseDumpManager
             '--user=' . $dbInfo['username'],
             '--password=' . "'" . $dbInfo['password'] . "'",
         ];
+        if (isset($dbInfo['attributes']) && isset($dbInfo['attributes'][\PDO::MYSQL_ATTR_SSL_CA])) {
+            $arguments[] = '--ssl-ca=' . $dbInfo['attributes'][\PDO::MYSQL_ATTR_SSL_CA];
+        }
         if ($dumpOptions['schemaOnly']) {
             $arguments[] = '--no-data';
         }

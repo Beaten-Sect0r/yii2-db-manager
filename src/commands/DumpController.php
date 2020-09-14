@@ -92,19 +92,31 @@ class DumpController extends Controller
             $dumpCommand = $manager->makeDumpCommand($dumpPath, $dbInfo, $dumpOptions);
             Yii::trace(compact('dumpCommand', 'dumpPath', 'dumpOptions'), get_called_class());
             $process = new Process($dumpCommand, null, null, null, 60 * 30);
+            $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if ($process->isSuccessful()) {
+				$uploadResult = true;
                 if ($this->storage) {
                     if (Yii::$app->has('backupStorage')) {
-                        $dumpText = fopen($dumpPath, 'r+');
-                        Yii::$app->backupStorage->writeStream(StringHelper::basename($dumpPath), $dumpText);
-                        fclose($dumpText);
+						Console::output('Opening: '.$dumpPath);
+
+						$storage = Yii::createObject([
+							'class' => 'creocoder\flysystem\LocalFilesystem',
+							'path' => dirname($dumpPath),
+						]);
+                        //$dumpText = fopen($dumpPath, 'r+');
+                        $uploadResult = Yii::$app->backupStorage->writeStream(StringHelper::basename($dumpPath), $storage->readStream(StringHelper::basename($dumpPath)));
+                        //fclose($dumpText);
+						//Console::output(print_r($uploadResult, 1));
                     } else {
                         Console::output('Storage component is not configured.');
                     }
                 }
-                Console::output('Dump successfully created.');
+				if ($uploadResult !== false) {
+					Console::output('Dump successfully created.');
+				}
             } else {
+				//Console::output(print_r($process->getErrorOutput(), 1));
                 Console::output('Dump failed create.');
             }
         } else {
@@ -173,6 +185,7 @@ class DumpController extends Controller
             $restoreCommand = $manager->makeRestoreCommand($dumpFile, $dbInfo, $restoreOptions);
             Yii::trace(compact('restoreCommand', 'dumpFile', 'restoreOptions'), get_called_class());
             $process = new Process($restoreCommand);
+            $process->setTimeout($this->getModule()->timeout);
             $process->run();
             if (!is_null($runtime)) {
                 FileHelper::removeDirectory($runtime);
@@ -184,6 +197,30 @@ class DumpController extends Controller
             }
         } else {
             Console::output('Database configuration not found.');
+        }
+    }
+
+    /**
+     * Deleting all dumps.
+     */
+    public function actionDeleteAll()
+    {
+        Console::output('Do you want to delete all dumps? [yes|no]');
+        $answer = trim(fgets(STDIN));
+        if (!strncasecmp($answer, 'y', 1)) {
+            if (!empty($this->getModule()->getFileList())) {
+                $fail = [];
+                foreach ($this->getModule()->getFileList() as $file) {
+                    if (!unlink($file)) {
+                        $fail[] = $file;
+                    }
+                }
+                if (empty($fail)) {
+                    Console::output('All dumps successfully removed.');
+                } else {
+                    Console::output('Error deleting dumps.');
+                }
+            }
         }
     }
 

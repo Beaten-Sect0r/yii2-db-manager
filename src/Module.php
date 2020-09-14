@@ -24,18 +24,25 @@ use bs\dbManager\models\PostgresDumpManager;
 class Module extends BaseModule
 {
     /**
-     * Array of available db-components for dump.
-     *
-     * @var array $db
-     */
-    public $dbList = ['db'];
-
-    /**
      * Path for backup directory.
      *
      * @var string $path
      */
     public $path;
+
+    /**
+     * Array of available db-components for dump.
+     *
+     * @var array $dbList
+     */
+    public $dbList = ['db'];
+
+    /**
+     * Process Timeout.
+     *
+     * @var string $timeout
+     */
+    public $timeout = 3600;
 
     /**
      * You can setup favorite dump options presets foreach db.
@@ -106,7 +113,7 @@ class Module extends BaseModule
                 /**
                  * @var Connection $db
                  */
-                $db = Instance::ensure($dbAlias, Connection::className());
+                $db = Instance::ensure($dbAlias, Connection::class);
                 $this->dbInfo[$dbAlias]['driverName'] = $db->driverName;
                 $this->dbInfo[$dbAlias]['dsn'] = $db->dsn;
                 $this->dbInfo[$dbAlias]['host'] = $this->getDsnAttribute('host', $db->dsn);

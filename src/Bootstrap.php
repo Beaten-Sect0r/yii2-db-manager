@@ -31,7 +31,7 @@ class Bootstrap implements BootstrapInterface
         // add console command
         if ($app instanceof ConsoleApplication) {
             if (!isset($app->controllerMap['dump'])) {
-                $app->controllerMap['dump'] = DumpController::className();
+                $app->controllerMap['dump'] = DumpController::class;
             }
         }
     }

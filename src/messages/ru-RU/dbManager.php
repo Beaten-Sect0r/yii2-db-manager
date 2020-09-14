@@ -48,6 +48,6 @@ return [
     'Run in background' => 'Запустить в фоне',
     'Size' => 'Размер',
     'Type' => 'Тип',
-    'Upload from storage' => 'Загрузить в хранилище',
+    'Upload to storage' => 'Загрузить в хранилище',
     'gzip' => '',
 ];

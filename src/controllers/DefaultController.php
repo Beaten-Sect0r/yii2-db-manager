@@ -33,7 +33,7 @@ class DefaultController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'create' => ['post'],
                     'delete' => ['post'],
@@ -201,6 +201,7 @@ class DefaultController extends Controller
     protected function runProcess($command, $isRestore = false)
     {
         $process = new Process($command);
+        $process->setTimeout($this->getModule()->timeout);
         $process->run();
         if ($process->isSuccessful()) {
             $msg = (!$isRestore) ? Yii::t('dbManager', 'Dump successfully created.') : Yii::t('dbManager', 'Dump successfully restored.');
@@ -219,6 +220,7 @@ class DefaultController extends Controller
     protected function runProcessAsync($command, $isRestore = false)
     {
         $process = new Process($command);
+        $process->setTimeout($this->getModule()->timeout);
         $process->start();
         $pid = $process->getPid();
         $activePids = Yii::$app->session->get('backupPids', []);
@@ -248,6 +250,7 @@ class DefaultController extends Controller
         if (!empty($activePids)) {
             foreach ($activePids as $pid => $cmd) {
                 $process = new Process('ps -p ' . $pid);
+                $process->setTimeout($this->getModule()->timeout);
                 $process->run();
                 if (!$process->isSuccessful()) {
                     Yii::$app->session->addFlash('success',
@@ -267,17 +270,18 @@ class DefaultController extends Controller
      */
     protected function prepareFileData()
     {
+        $dataArray = [];
         foreach ($this->getModule()->getFileList() as $id => $file) {
-            $columns = [];
-            $columns['id'] = $id;
-            $columns['type'] = pathinfo($file, PATHINFO_EXTENSION);
-            $columns['name'] = StringHelper::basename($file);
-            $columns['size'] = Yii::$app->formatter->asSize(filesize($file));
-            $columns['create_at'] = Yii::$app->formatter->asDatetime(filectime($file));
-            $dataArray[] = $columns;
+            $dataArray[] = [
+                'id' => $id,
+                'type' => pathinfo($file, PATHINFO_EXTENSION),
+                'name' => StringHelper::basename($file),
+                'size' => Yii::$app->formatter->asSize(filesize($file)),
+                'create_at' => Yii::$app->formatter->asDatetime(filectime($file)),
+            ];
         }
         ArrayHelper::multisort($dataArray, ['create_at'], [SORT_DESC]);
 
-        return $dataArray;
+        return $dataArray ?: [];
     }
 }

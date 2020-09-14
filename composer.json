@@ -23,7 +23,7 @@
     "require": {
         "yiisoft/yii2": "*",
         "yiisoft/yii2-bootstrap": "*",
-        "symfony/process": "2.8.*|3.*",
+        "symfony/process": "2.8.*|3.*|4.*",
         "creocoder/yii2-flysystem": "*"
     },
     "autoload": {

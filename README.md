@@ -47,6 +47,8 @@ Advanced ```backend/config/main.php```
             'path' => '@app/backups',
             // list of registerd db-components
             'dbList' => ['db'],
+            // Flysystem adapter (optional) creocoder\flysystem\LocalFilesystem will be used as default. 
+            'flySystemDriver' => 'creocoder\flysystem\LocalFilesystem',
             'as access' => [
                 'class' => 'yii\filters\AccessControl',
                 'rules' => [
@@ -83,6 +85,8 @@ Advanced ```backend/config/main.php```
     'modules' => [
         'db-manager' => [
             'class' => 'bs\dbManager\Module',
+            // Flysystem adapter (optional) creocoder\flysystem\LocalFilesystem will be used as default. 
+            'flySystemDriver' => 'creocoder\flysystem\LocalFilesystem',
             // path to directory for the dumps
             'path' => '@app/backups',
             // list of registerd db-components
@@ -129,6 +133,8 @@ Advanced ```backend/config/main.php```
     'modules' => [
         'db-manager' => [
             'class' => 'bs\dbManager\Module',
+            // Flysystem adapter (optional) creocoder\flysystem\LocalFilesystem will be used as default. 
+            'flySystemDriver' => 'creocoder\flysystem\LocalFilesystem',
             // path to directory for the dumps
             'path' => '@app/backups',
             // list of registerd db-components

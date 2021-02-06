@@ -2,6 +2,7 @@
 
 namespace bs\dbManager;
 
+use creocoder\flysystem\LocalFilesystem as CreocoderLocalFileSystem;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Module as BaseModule;
@@ -98,6 +99,11 @@ class Module extends BaseModule
 
 
     public $lastFiles = 3;
+
+    /**
+     * @var string the flysystem driver to be used.
+     */
+    public $flySystemDriver = CreocoderLocalFileSystem::class;
 
     /**
      * @throws InvalidConfigException

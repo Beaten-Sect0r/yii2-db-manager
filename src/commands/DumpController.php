@@ -13,6 +13,7 @@ use bs\dbManager\models\Restore;
 use PDO;
 use PDOException;
 use Symfony\Component\Process\Process;
+use bs\dbManager\Module;
 
 /**
  * Database backup manager.
@@ -101,7 +102,7 @@ class DumpController extends Controller
 						Console::output('Opening: '.$dumpPath);
 
 						$storage = Yii::createObject([
-							'class' => 'creocoder\flysystem\LocalFilesystem',
+							'class' => $this->getModule()->flySystemDriver,
 							'path' => dirname($dumpPath),
 						]);
                         //$dumpText = fopen($dumpPath, 'r+');

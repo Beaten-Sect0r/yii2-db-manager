@@ -136,10 +136,10 @@ class Module extends BaseModule
             $this->path .= '/';
         }
         if (!is_dir($this->path)) {
-            throw new InvalidConfigException('Path is not directory');
+            throw new InvalidConfigException("Path is not a directory: $this->path");
         }
         if (!is_writable($this->path)) {
-            throw new InvalidConfigException('Path is not writable! Check chmod!');
+            throw new InvalidConfigException("Path is not writable: $this->path");
         }
         $this->fileList = FileHelper::findFiles($this->path, ['only' => ['*.sql', '*.gz']]);
 
